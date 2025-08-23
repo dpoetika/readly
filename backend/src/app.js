@@ -22,11 +22,10 @@ app.get("/", (req, res) => {
   ]});
 });
 
-
-
+/*
 app.listen(config.PORT, () => {
   console.log("http://localhost:3000/books/top\nhttp://localhost:3000/books/search/?query=sa");
 });
 
-
-//export default app;
+*/
+export default app;
