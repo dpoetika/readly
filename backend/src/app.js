@@ -10,13 +10,13 @@ app.use("/books",bookRouter)
 app.use("/categories",categoryRouter)
 
 app.get("/", (req, res) => {
-  res.send({usage:`
-    https://readly-alpha.vercel.app/books → brings top books
-    https://readly-alpha.vercel.app/books/search?query={some string} → search
-    https://readly-alpha.vercel.app/books/:id → plain txt of book
-    https://readly-alpha.vercel.app/categories/ → list categories
-    https://readly-alpha.vercel.app/categories/:category_id → books in category
-  `});
+  res.send({usage:[
+    `https://readly-alpha.vercel.app/books → brings top books`,
+    `https://readly-alpha.vercel.app/books/search?query={some string} → search`,
+    `https://readly-alpha.vercel.app/books/:id → plain txt of book`,
+    `https://readly-alpha.vercel.app/categories/ → list categories`,
+    `https://readly-alpha.vercel.app/categories/:category_id → books in category`,
+  ]});
 });
 
 
