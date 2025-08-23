@@ -1,7 +1,7 @@
 import express from "express"
 import bookRouter from "./routes/books.routes.js"
 import categoryRouter from "./routes/category.routes.js"
-import config from "./config/config.js"
+
 
 const app = express()
 app.use(express.json())
@@ -20,4 +20,4 @@ app.listen(config.PORT, () => {
 });
 */
 
-module.exports = app;
+export default app;
