@@ -1,8 +1,7 @@
 import express from "express"
-import { get_book } from "../controllers/get_book.controller.js"
-
 import { get_categories } from "../controllers/categories.controller.js"
 import { get_category_books } from "../controllers/categories.controller.js"
+
 const categoryRouter = express.Router()
 
 
