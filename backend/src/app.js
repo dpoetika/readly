@@ -21,8 +21,8 @@ app.get("/", (req, res) => {
     `https://readly-alpha.vercel.app/categories/:category_id → books in category`,
   ]});
 });
-
-/*
+ 
+/* 
 app.listen(config.PORT, () => {
   console.log("http://localhost:3000/books/top\nhttp://localhost:3000/books/search/?query=sa");
 });
