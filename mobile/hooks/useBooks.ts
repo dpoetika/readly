@@ -6,7 +6,7 @@ import { Book } from "@/types";
 export function useBooks() {
   const api = createApiClient();
 
-  return useQuery<Record<string, Book>, Error>({
+  return useQuery<Book[], Error>({
     queryKey: ["books"],
     queryFn: () => bookApi.getBooks(api).then(res => res.data),
     staleTime: 1000 * 60 * 5,

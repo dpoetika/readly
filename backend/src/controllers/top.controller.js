@@ -16,7 +16,7 @@ export async function top() {
             const title = $(el).find("span.title").text().trim();
             const author = $(el).find("span.subtitle").text().trim();
             if (id.includes("/ebooks/")) {
-                object.push({ "id": id.replace("/ebooks/", ""), "title": title, author: author,img:img});
+                object.push({ "id": id.replace("/ebooks/", ""), "title": title, author: author,img:"https://www.gutenberg.org" + img});
             }
         });
     }
