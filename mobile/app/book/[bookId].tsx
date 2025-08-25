@@ -1,32 +1,103 @@
-import { ActivityIndicator, SafeAreaView, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native'
-import React, { useEffect } from 'react'
+import { ActivityIndicator, SafeAreaView, StatusBar, StyleSheet, Text, View, FlatList, LayoutChangeEvent } from 'react-native'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { useLocalSearchParams } from 'expo-router';
 import { useBookById } from '@/hooks/useBooks';
+import AsyncStorage from "@react-native-async-storage/async-storage"
 
-
-const { width: screenWidth, height: screenHeight } = useWindowDimensions();
 
 const FONT_SIZE = 16;
 const LINE_HEIGHT = 24;
-const LINE_PER_PAGE = (screenHeight-100)/(FONT_SIZE+LINE_HEIGHT + 5)
+const CHUNK_SIZE = 3000;
 
-const BookScreen = () => { 
+const BookScreen = () => {
   const { bookId } = useLocalSearchParams<{ bookId: string }>();
-  const id = Array.isArray(bookId) ? bookId[0] : bookId; // string | string[] guard
-
+  const id = Array.isArray(bookId) ? bookId[0] : bookId;
   const { data, isLoading, error } = useBookById(id!);
-  const text = "abcdaxsd ".repeat(300)
+  const flatListRef = useRef<FlatList>(null);
+  const [isScrollingToPosition, setIsScrollingToPosition] = useState(true);
+  const [isScrolled, setIsScrolled] = useState(false)
+
+  const HandleOnLayout = async () => {
+    console.log("ilk yükleme")
+  }
+  const loadScrollPosition = async (w: number, h: number) => {
+    console.log("tetiklendi-------------")
+    if (isScrolled) { return null }
+    try {
+      const savedScrollY = await AsyncStorage.getItem(bookId);
+      if (savedScrollY) {
+        const scrollY = Number(savedScrollY);
+
+        if (flatListRef.current && scrollY > 0) {
+
+          flatListRef.current.scrollToOffset({
+            offset: scrollY,
+            animated: true,
+          });
+
+          console.log("save bulundu ve yüklendi", scrollY)
+          if (h > scrollY) {
+            setIsScrolled(true)
+            setIsScrollingToPosition(false);
+          }
+        }
+      } else {
+        console.log("save yok")
+        setIsScrolled(true)
+        setIsScrollingToPosition(false);
+      }
+    } catch (error) {
+      console.error('Scroll position load error:', error);
+    }
+  };
+
+  const splitText = (text: string, size: number): string[] => {
+    let chunks: string[] = [];
+    for (let i = 0; i < text.length; i += size) {
+      chunks.push(text.slice(i, i + size));
+    }
+    return chunks;
+  };
+  const parts = useMemo(() => {
+    if (!data?.data) return [];
+    return splitText(data.data, CHUNK_SIZE);
+  }, [data?.data]);
+
+  const HandleScroll = async (event: any) => {
+    if (!isScrolled) { return "sa" }
+    const currentScrollY = event.nativeEvent.contentOffset.y;
+
+    //await AsyncStorage.setItem(bookId, currentScrollY.toString());
+    await AsyncStorage.setItem(bookId, "70000");
+    console.log("kaydedildi ", currentScrollY)
+  }
+  StatusBar.setHidden(true);
 
   if (isLoading) return <ActivityIndicator style={styles.loader} size="large" />;
   if (error) return <Text>Hata: {error.message}</Text>;
+  if (!data) return <Text>Veri bulunamadı</Text>;
 
-
-  const { width } = useWindowDimensions();
   return (
     <SafeAreaView style={styles.container}>
-      <View style={{ flex: 1, marginTop: 45, marginBottom: 55 }}>
-        <Text style={styles.text}> {text} </Text>
-      </View>
+      <FlatList
+        ref={flatListRef}
+
+        style={{ flex: 1, opacity: isScrollingToPosition ? 0.2 : 1 }}
+        data={parts}
+        scrollEventThrottle={10}
+        onMomentumScrollEnd={(event) => { HandleScroll(event) }}
+
+        showsVerticalScrollIndicator={true}
+        keyExtractor={(_, index) => index.toString()}
+
+        //onLayout={(event)=>loadScrollPosition(event)}
+        onContentSizeChange={(w, h) => loadScrollPosition(w, h)}
+        renderItem={({ item }) => (
+          <Text style={styles.text}>
+            {item}
+          </Text>
+        )}
+      />
     </SafeAreaView>
   );
 }
@@ -43,12 +114,9 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  scroll: {
-
-    padding: 10,
-  },
   text: {
     fontSize: FONT_SIZE,
     lineHeight: LINE_HEIGHT,
+    padding: 10,
   },
-})
+});

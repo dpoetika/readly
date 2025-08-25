@@ -1,8 +1,6 @@
 import BookModal from "@/components/BooksList";
-import { Text, View } from "react-native";
+import { View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
-
 export default function Index() {
   return (
     <SafeAreaView
@@ -12,12 +10,9 @@ export default function Index() {
         alignItems: "center",
       }}
     >
-      <View style={{backgroundColor:"red"}}>
-      <BookModal />
-
+      <View style={{ backgroundColor: "red" }}>
+        <BookModal />
       </View>
-
-
     </SafeAreaView>
   );
 }
