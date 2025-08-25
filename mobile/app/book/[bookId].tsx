@@ -1,4 +1,4 @@
-import { ActivityIndicator, SafeAreaView, StatusBar, StyleSheet, Text, View, FlatList, LayoutChangeEvent } from 'react-native'
+import { ActivityIndicator, SafeAreaView, StatusBar, StyleSheet, Text, View, FlatList, LayoutChangeEvent, NativeScrollEvent, NativeSyntheticEvent } from 'react-native'
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { useLocalSearchParams } from 'expo-router';
 import { useBookById } from '@/hooks/useBooks';
@@ -17,11 +17,7 @@ const BookScreen = () => {
   const [isScrollingToPosition, setIsScrollingToPosition] = useState(true);
   const [isScrolled, setIsScrolled] = useState(false)
 
-  const HandleOnLayout = async () => {
-    console.log("ilk yükleme")
-  }
   const loadScrollPosition = async (w: number, h: number) => {
-    console.log("tetiklendi-------------")
     if (isScrolled) { return null }
     try {
       const savedScrollY = await AsyncStorage.getItem(bookId);
@@ -63,13 +59,10 @@ const BookScreen = () => {
     return splitText(data.data, CHUNK_SIZE);
   }, [data?.data]);
 
-  const HandleScroll = async (event: any) => {
-    if (!isScrolled) { return "sa" }
-    const currentScrollY = event.nativeEvent.contentOffset.y;
-
-    //await AsyncStorage.setItem(bookId, currentScrollY.toString());
-    await AsyncStorage.setItem(bookId, "70000");
-    console.log("kaydedildi ", currentScrollY)
+  const HandleScroll = async (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+    if (!isScrolled) { return null }
+    const currentScrollY:Number = event.nativeEvent.contentOffset.y;
+    await AsyncStorage.setItem(bookId, currentScrollY.toString());
   }
   StatusBar.setHidden(true);
 
@@ -85,7 +78,7 @@ const BookScreen = () => {
         style={{ flex: 1, opacity: isScrollingToPosition ? 0.2 : 1 }}
         data={parts}
         scrollEventThrottle={10}
-        onMomentumScrollEnd={(event) => { HandleScroll(event) }}
+        onMomentumScrollEnd={(event:NativeSyntheticEvent<NativeScrollEvent>) => { HandleScroll(event) }}
 
         showsVerticalScrollIndicator={true}
         keyExtractor={(_, index) => index.toString()}
