@@ -31,14 +31,12 @@ const BookScreen = () => {
             animated: true,
           });
 
-          console.log("save bulundu ve yüklendi", scrollY)
           if (h > scrollY) {
             setIsScrolled(true)
             setIsScrollingToPosition(false);
           }
         }
       } else {
-        console.log("save yok")
         setIsScrolled(true)
         setIsScrollingToPosition(false);
       }
