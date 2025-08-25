@@ -19,10 +19,10 @@ export async function get_book(id) {
     let content = data.slice(startIndex + data.substring(startIndex).indexOf("\n") + 1, endIndex);
 
     // Satır sonlarını normalize et
-    content = content.replace(/\r\n/g, "\n").replace(/\r/g, "\n");
+    //content = content.replace(/\r\n/g, "\n").replace(/\r/g, "\n");
 
     // Gereksiz boş satırları temizle
-    content = content.replace(/\n\s*\n/g, "\n\n");
+    //content = content.replace(/\n\s*\n/g, "\n\n");
 
     return {message:"succes","data":content.trim()};
 }

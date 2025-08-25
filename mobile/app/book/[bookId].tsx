@@ -1,5 +1,5 @@
-import { ActivityIndicator, SafeAreaView, StatusBar, StyleSheet, Text, View, FlatList, LayoutChangeEvent, NativeScrollEvent, NativeSyntheticEvent } from 'react-native'
-import React, { useEffect, useMemo, useRef, useState } from 'react'
+import { ActivityIndicator, SafeAreaView, StatusBar, StyleSheet, Text, FlatList, NativeScrollEvent, NativeSyntheticEvent } from 'react-native'
+import React, { useMemo, useRef, useState } from 'react'
 import { useLocalSearchParams } from 'expo-router';
 import { useBookById } from '@/hooks/useBooks';
 import AsyncStorage from "@react-native-async-storage/async-storage"
