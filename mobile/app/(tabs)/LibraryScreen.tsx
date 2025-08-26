@@ -1,12 +1,19 @@
 import MyLibraryBook from "@/components/MyLibraryBook";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useEffect, useState } from "react";
-import { Text, FlatList, ActivityIndicator, View } from "react-native";
+import { Text, FlatList, ActivityIndicator, View, RefreshControl } from "react-native";
 
 export default function Index() {
 
   const [books, setBooks] = useState({})
   const [isLoading, setIsLoading] = useState(true)
+  const [refreshing, setRefreshing] = useState(false);
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await getAllBooks();
+    setRefreshing(false);
+  };
   const getAllBooks = async () => {
   try {
     const recentlyRead = await AsyncStorage.getItem("recentlyRead");
@@ -55,6 +62,9 @@ export default function Index() {
     <View style={{ padding: 0, marginTop: 45 }}>
       <Text style={{fontSize:30,fontWeight:900,alignSelf:"center"}}>Okumaya Devam Edin</Text>
       <FlatList
+      refreshControl={
+        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+      }
         horizontal={true}
         showsHorizontalScrollIndicator={false}
         data={Object.values(books)}

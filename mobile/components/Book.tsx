@@ -1,15 +1,54 @@
-import { View, Text, Image, TouchableOpacity,StyleSheet } from "react-native";
-import React from "react";
+import { View, Text, Image, TouchableOpacity, StyleSheet } from "react-native";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "expo-router";
 import { Book } from "@/types";
 import { Ionicons } from '@expo/vector-icons'
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
-const BookModal = ({book}:{book:Book}) => {
-    const router = useRouter()
-    return (
-    <TouchableOpacity 
-      style={styles.container} 
-      onPress={() => router.push({ pathname: '/(book)/[bookId]', params: { bookId: book.id, bookName:book.title,bookAuthor:book.author} })}
+const BookModal = ({ book }: { book: Book }) => {
+  const [favs, setFavs] = useState<string[]>([]);
+  const router = useRouter();
+
+  const getItems = async () => {
+    try {
+      const likedBooks = await AsyncStorage.getItem("favs");
+      if (likedBooks) {
+        setFavs(JSON.parse(likedBooks));
+      } else {
+        setFavs([]);
+      }
+    } catch (error) {
+      console.error('Favs çekme hatası:', error);
+      setFavs([]);
+    }
+  };
+
+  const toggleLike = async () => {
+    try {
+      let newFavs;
+      if (isLiked()) {
+        newFavs = favs.filter(id => id !== book.id);
+      } else {
+        newFavs = [...favs, book.id];
+      }
+      setFavs(newFavs);
+      await AsyncStorage.setItem("favs", JSON.stringify(newFavs));
+
+    } catch (error) {
+      console.error('Like hatası:', error);
+    }
+  };
+
+  const isLiked = () => favs.includes(book.id);
+
+  useEffect(() => {
+    getItems();
+  }, []); // Empty dependency array - sadece mount'ta çalışır
+
+  return (
+    <TouchableOpacity
+      style={styles.container}
+      onPress={() => router.push({ pathname: '/(book)/[bookId]', params: { bookId: book.id, bookName: book.title, bookAuthor: book.author } })}
       activeOpacity={0.7}
     >
       <View style={styles.imageContainer}>
@@ -19,28 +58,20 @@ const BookModal = ({book}:{book:Book}) => {
           resizeMode="cover"
         />
       </View>
-      
+
       <View style={styles.content}>
         <Text style={styles.title} numberOfLines={0}>{book.title}</Text>
         <Text style={styles.author}>{book.author}</Text>
-        
-        {/*
-        <View style={styles.detailsContainer}>
-          <View style={styles.ratingContainer}>
-            <Ionicons name="star" size={14} color="#FFD700" />
-            <Text style={styles.ratingText}>{rating}</Text>
-          </View>
-          <View style={styles.metaContainer}>
-            <Text style={styles.metaText}>{pages} sayfa</Text>
-            <Text style={styles.metaText}>•</Text>
-            <Text style={styles.metaText}>{year}</Text>
-          </View>
-        </View>
-        */}
       </View>
-      
+
       <View style={styles.favoriteButton}>
-        <Ionicons name="heart-outline" size={20} color="#666" />
+        <TouchableOpacity onPress={toggleLike}>
+          {isLiked() ? (
+            <Ionicons name="heart" size={20} color="red" />
+          ) : (
+            <Ionicons name="heart-outline" size={20} color="red" />
+          )}
+        </TouchableOpacity>
       </View>
     </TouchableOpacity>
   )

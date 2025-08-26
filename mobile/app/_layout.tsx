@@ -1,8 +1,6 @@
 import { Stack, Tabs } from "expo-router";
 import React from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { Ionicons } from '@expo/vector-icons';
-
 const queryClient = new QueryClient();
 
 export default function App() {

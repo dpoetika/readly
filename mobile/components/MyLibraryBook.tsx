@@ -1,15 +1,22 @@
 import { View, Text, Image, TouchableOpacity, StyleSheet } from "react-native";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "expo-router";
 import { Book } from "@/types";
-import { Ionicons } from '@expo/vector-icons'
 
 const BookModal = ({ book }: { book: Book }) => {
-  const router = useRouter()
+  const router = useRouter();
+
   return (
     <TouchableOpacity
       style={styles.container}
-      onPress={() => router.push({ pathname: '/(book)/[bookId]', params: { bookId: book.id, bookName:book.title,bookAuthor:book.author} })}
+      onPress={() => router.push({ 
+        pathname: '/(book)/[bookId]', 
+        params: { 
+          bookId: book.id, 
+          bookName: book.title, 
+          bookAuthor: book.author 
+        } 
+      })}
       activeOpacity={0.7}
     >
       <View style={styles.imageContainer}>
@@ -24,21 +31,17 @@ const BookModal = ({ book }: { book: Book }) => {
         <Text style={styles.title} numberOfLines={2}>{book.title}</Text>
         <Text style={styles.author} numberOfLines={1}>{book.author}</Text>
       </View>
-
-      <View style={styles.favoriteButton}>
-        <Ionicons name="heart-outline" size={20} color="#666" />
-      </View>
     </TouchableOpacity>
-  )
-}
+  );
+};
 
 export default BookModal;
 
 const styles = StyleSheet.create({
   container: {
-    marginLeft:20,
-    marginRight:5,
-    width:300,
+    marginLeft: 20,
+    marginRight: 5,
+    width: 300,
     flexDirection: 'row',
     backgroundColor: '#FFF',
     borderRadius: 12,
