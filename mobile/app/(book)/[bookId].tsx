@@ -77,7 +77,6 @@ const BookScreen = () => {
       author: bookAuthor,
       title: bookName,
     };
-    console.log(recentlyRead)
     await AsyncStorage.setItem("recentlyRead", JSON.stringify(recentlyRead));
   }
   StatusBar.setHidden(true);
