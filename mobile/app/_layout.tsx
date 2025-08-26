@@ -1,15 +1,21 @@
-import { Stack } from "expo-router";
+import { Stack, Tabs } from "expo-router";
 import React from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { Ionicons } from '@expo/vector-icons';
 
 const queryClient = new QueryClient();
 
 export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <Stack screenOptions={{
-        headerShown: false,
-      }}/>
+      <Stack
+        screenOptions={{ headerShown: false }}
+      >
+        <Stack.Screen
+          name="(tabs)"
+        >
+        </Stack.Screen>
+      </Stack>
     </QueryClientProvider>
   );
 }

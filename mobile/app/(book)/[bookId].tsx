@@ -10,18 +10,27 @@ const LINE_HEIGHT = 24;
 const CHUNK_SIZE = 3000;
 
 const BookScreen = () => {
-  const { bookId } = useLocalSearchParams<{ bookId: string }>();
+  const { bookId,bookName,bookAuthor} = useLocalSearchParams<{ bookId: string,bookName:string,bookAuthor:string}>();
   const id = Array.isArray(bookId) ? bookId[0] : bookId;
   const { data, isLoading, error } = useBookById(id!);
   const flatListRef = useRef<FlatList>(null);
   const [isScrollingToPosition, setIsScrollingToPosition] = useState(true);
   const [isScrolled, setIsScrolled] = useState(false)
-
+  const [lastSave, setLastSave] = useState("")
   const loadScrollPosition = async (w: number, h: number) => {
     if (isScrolled) { return null }
+    const getItem = await AsyncStorage.getItem("recentlyRead");
+    if (getItem===null){
+      setIsScrolled(true) 
+      setIsScrollingToPosition(false);
+      return
+    }
+    setLastSave(getItem)
     try {
-      const savedScrollY = await AsyncStorage.getItem(bookId);
-      if (savedScrollY) {
+
+      const currentBook = JSON.parse(getItem)[bookId];
+      if (currentBook) {
+        const savedScrollY = currentBook.page;
         const scrollY = Number(savedScrollY);
 
         if (flatListRef.current && scrollY > 0) {
@@ -60,7 +69,16 @@ const BookScreen = () => {
   const HandleScroll = async (event: NativeSyntheticEvent<NativeScrollEvent>) => {
     if (!isScrolled) { return null }
     const currentScrollY:Number = event.nativeEvent.contentOffset.y;
-    await AsyncStorage.setItem(bookId, currentScrollY.toString());
+    let recentlyRead = lastSave ? JSON.parse(lastSave) : {};
+    
+    recentlyRead[bookId] = {
+      id: bookId,
+      page: currentScrollY,
+      author: bookAuthor,
+      title: bookName,
+    };
+    console.log(recentlyRead)
+    await AsyncStorage.setItem("recentlyRead", JSON.stringify(recentlyRead));
   }
   StatusBar.setHidden(true);
 

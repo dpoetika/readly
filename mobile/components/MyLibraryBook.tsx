@@ -1,14 +1,14 @@
-import { View, Text, Image, TouchableOpacity,StyleSheet } from "react-native";
+import { View, Text, Image, TouchableOpacity, StyleSheet } from "react-native";
 import React from "react";
 import { useRouter } from "expo-router";
 import { Book } from "@/types";
 import { Ionicons } from '@expo/vector-icons'
 
-const BookModal = ({book}:{book:Book}) => {
-    const router = useRouter()
-    return (
-    <TouchableOpacity 
-      style={styles.container} 
+const BookModal = ({ book }: { book: Book }) => {
+  const router = useRouter()
+  return (
+    <TouchableOpacity
+      style={styles.container}
       onPress={() => router.push({ pathname: '/(book)/[bookId]', params: { bookId: book.id, bookName:book.title,bookAuthor:book.author} })}
       activeOpacity={0.7}
     >
@@ -19,26 +19,12 @@ const BookModal = ({book}:{book:Book}) => {
           resizeMode="cover"
         />
       </View>
-      
+
       <View style={styles.content}>
-        <Text style={styles.title} numberOfLines={0}>{book.title}</Text>
-        <Text style={styles.author}>{book.author}</Text>
-        
-        {/*
-        <View style={styles.detailsContainer}>
-          <View style={styles.ratingContainer}>
-            <Ionicons name="star" size={14} color="#FFD700" />
-            <Text style={styles.ratingText}>{rating}</Text>
-          </View>
-          <View style={styles.metaContainer}>
-            <Text style={styles.metaText}>{pages} sayfa</Text>
-            <Text style={styles.metaText}>•</Text>
-            <Text style={styles.metaText}>{year}</Text>
-          </View>
-        </View>
-        */}
+        <Text style={styles.title} numberOfLines={2}>{book.title}</Text>
+        <Text style={styles.author} numberOfLines={1}>{book.author}</Text>
       </View>
-      
+
       <View style={styles.favoriteButton}>
         <Ionicons name="heart-outline" size={20} color="#666" />
       </View>
@@ -50,6 +36,9 @@ export default BookModal;
 
 const styles = StyleSheet.create({
   container: {
+    marginLeft:20,
+    marginRight:5,
+    width:300,
     flexDirection: 'row',
     backgroundColor: '#FFF',
     borderRadius: 12,
@@ -83,8 +72,11 @@ const styles = StyleSheet.create({
     flex: 1,
     marginLeft: 12,
     justifyContent: 'space-between',
+    maxWidth: 180, // Maksimum genişlik belirle
   },
   title: {
+    flexWrap: 'wrap',
+    flexShrink: 1, // Taşmayı engelle
     fontSize: 16,
     fontWeight: '700',
     color: '#333',
