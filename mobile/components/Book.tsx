@@ -6,7 +6,7 @@ import { Ionicons } from '@expo/vector-icons'
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const BookModal = ({ book }: { book: Book }) => {
-  const [favs, setFavs] = useState<string[]>([]);
+  const [favs, setFavs] = useState<Book[]>([]);
   const router = useRouter();
 
   const getItems = async () => {
@@ -25,12 +25,14 @@ const BookModal = ({ book }: { book: Book }) => {
 
   const toggleLike = async () => {
     try {
-      let newFavs;
+      let newFavs: Book[];
+      
       if (isLiked()) {
-        newFavs = favs.filter(id => id !== book.id);
+        newFavs = favs.filter(favBook => favBook.id !== book.id);
       } else {
-        newFavs = [...favs, book.id];
+        newFavs = [...favs, book];
       }
+      
       setFavs(newFavs);
       await AsyncStorage.setItem("favs", JSON.stringify(newFavs));
 
@@ -39,11 +41,11 @@ const BookModal = ({ book }: { book: Book }) => {
     }
   };
 
-  const isLiked = () => favs.includes(book.id);
+  const isLiked = () => favs.some(favBook => favBook.id === book.id);
 
   useEffect(() => {
     getItems();
-  }, []); // Empty dependency array - sadece mount'ta çalışır
+  }, []);
 
   return (
     <TouchableOpacity
@@ -60,8 +62,8 @@ const BookModal = ({ book }: { book: Book }) => {
       </View>
 
       <View style={styles.content}>
-        <Text style={styles.title} numberOfLines={0}>{book.title}</Text>
-        <Text style={styles.author}>{book.author}</Text>
+        <Text style={styles.title} numberOfLines={2}>{book.title}</Text>
+        <Text style={styles.author} numberOfLines={1}>{book.author}</Text>
       </View>
 
       <View style={styles.favoriteButton}>
@@ -116,6 +118,8 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   title: {
+    flexWrap: 'wrap',
+    flexShrink: 1,
     fontSize: 16,
     fontWeight: '700',
     color: '#333',
