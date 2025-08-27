@@ -4,3 +4,7 @@ export interface Book {
     author: string;
     img:string;
 }
+export interface Category{
+    id:string;
+    title:string;
+}

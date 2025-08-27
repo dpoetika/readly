@@ -1,9 +1,7 @@
 import { View, Text, Image, TouchableOpacity, StyleSheet } from "react-native";
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { useRouter } from "expo-router";
 import { Book } from "@/types";
-import { Ionicons } from '@expo/vector-icons'
-import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const BookModal = ({ book }: { book: Book }) => {
   const router = useRouter();

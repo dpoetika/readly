@@ -1,5 +1,5 @@
 import { View, Text, Image, TouchableOpacity, StyleSheet } from "react-native";
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { useRouter } from "expo-router";
 import { Book } from "@/types";
 

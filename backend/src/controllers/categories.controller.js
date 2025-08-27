@@ -7,12 +7,12 @@ export async function get_categories() {
     const { data } = await axios.get(config.GET_CATEGORIES_URI);      
     const $ = cheerio.load(data);              
 
-    const results = {};
+    const results = [];
 
     $(".bookshelves .book-list ul li a").each((i, el) => {
         const href = $(el).attr("href");       
         const text = $(el).text().trim();  
-        results[i]={ id:href.replace("/ebooks/bookshelf/",""),title:text };
+        results.push({ id:href.replace("/ebooks/bookshelf/",""),title:text });
     });
 
     return {message:"succes","data":results};
@@ -20,20 +20,19 @@ export async function get_categories() {
 
 
 export async function get_category_books(category_id) {
-    const objects = {}; 
+    const objects = []; 
     for (let index = 0; index < 4; index++) {
         
-        const { data } = await axios.get(`${config.GET_CATEGORY_BOOKS}/${category_id}/?start_index=${index*25}`);      
+        const { data } = await axios.get(`${config.GET_CATEGORY_BOOKS}/${category_id}/?start_index=${String((index*25)+1)}`);      
         const $ = cheerio.load(data);              
 
         $("li.booklink").each((i, el) => {
             const aTag = $(el).find("a.link");
-            const id = aTag.attr("href").replace("/ebooks/","");  // /ebooks/27107
-            const thumbnail = aTag.find("img.cover-thumb").attr("src"); // kapak resmi
+            const id = aTag.attr("href").replace("/ebooks/","");  
+            const img = aTag.find("img.cover-thumb").attr("src"); 
             const title = aTag.find("span.title").text().trim();
             const author = aTag.find("span.subtitle").text().trim();
-            const extra = aTag.find("span.extra").text().trim();
-            objects[i+String(index)] = { id, thumbnail, title, author, extra }
+            objects.push({ id, img:"https://www.gutenberg.org" + img.replace("small","medium"), title, author})
         });
     }
     return {message:"succes","data":objects};

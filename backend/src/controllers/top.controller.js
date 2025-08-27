@@ -21,5 +21,5 @@ export async function top() {
         });
     }
     
-    return object;
+    return {message:"succes","data":object};
 }
