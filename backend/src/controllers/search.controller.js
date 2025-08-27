@@ -13,7 +13,7 @@ export async function search(query) {
         const img = aTag.find("img.cover-thumb").attr("src"); // kapak resmi
         const title = aTag.find("span.title").text().trim();
         const author = aTag.find("span.subtitle").text().trim();
-        objects.push({ id, img, title, author })
+        objects.push({ id, img:"https://www.gutenberg.org" + img.replace("small","medium"), title, author })
   });
     return {message:"succes","data":objects};
 }

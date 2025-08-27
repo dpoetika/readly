@@ -8,7 +8,7 @@ export function useBooks() {
 
   return useQuery<Book[], Error>({
     queryKey: ["books"],
-    queryFn: () => bookApi.getBooks(api).then(res => res.data),
+    queryFn: () => bookApi.getBooks(api).then(res => res.data).then(res=>{return Object.values(res.data)}),
     staleTime: 1000 * 60 * 5,
   });
 }
@@ -16,11 +16,11 @@ export function useBooks() {
 // 🔍 Kitap arama
 export function useSearchBooks(query: string) {
   const api = createApiClient();
-
-  return useQuery({
+  console.log("api çağrıldı")
+  return useQuery<Book[], Error>({
     queryKey: ["books", "search", query],
-    queryFn: () => bookApi.searchBooks(api, query).then(res => res.data),
-    enabled: !!query, // boşsa çalışmaz
+    queryFn: () => bookApi.searchBooks(api, query).then(res => res.data).then(res=>{return Object.values(res.data)}),
+    enabled: false,
     staleTime: 1000 * 60 * 5,
   });
 }

@@ -55,8 +55,6 @@ export default function Index() {
     }
   };
   
-
-
   useEffect(() => {
     getAllBooks()
   }, [])

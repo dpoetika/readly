@@ -4,7 +4,7 @@ import { Category } from "@/types";
 import { Text, FlatList, ActivityIndicator, View } from "react-native";
 
 export default function Index() {
-    const { data: books, isLoading, error } = useCategories();
+    const { data: categories, isLoading, error } = useCategories();
     if (isLoading) return <ActivityIndicator style={{ flex: 1, justifyContent: "center" }}></ActivityIndicator>;
     if (error) return <Text>Hata: {error.message}</Text>;
 
@@ -12,7 +12,7 @@ export default function Index() {
         <View style={{ flex: 1, padding: 0, marginTop: 45 }}>
             <FlatList
                 showsVerticalScrollIndicator={false}
-                data={books}
+                data={categories}
                 numColumns={2}
                 columnWrapperStyle={{ justifyContent: 'space-between' }}
                 contentContainerStyle={{ padding: 8 }}

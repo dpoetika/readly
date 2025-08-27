@@ -8,7 +8,6 @@ import BookModal from '@/components/Book';
 const CategoryBooks = () => {
     const { categoryId, categoryTitle } = useLocalSearchParams<{ categoryId: string, categoryTitle: string }>();
     const { data: books, isLoading, error } = useCategoryById(categoryId);
-    console.log(books) 
     if (isLoading) return <ActivityIndicator style={{ flex: 1, justifyContent: "center" }}></ActivityIndicator>;
     if (error) return <Text>Hata: {error.message}</Text>;
     return (
