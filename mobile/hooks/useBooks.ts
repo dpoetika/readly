@@ -16,7 +16,6 @@ export function useBooks() {
 // 🔍 Kitap arama
 export function useSearchBooks(query: string) {
   const api = createApiClient();
-  console.log("api çağrıldı")
   return useQuery<Book[], Error>({
     queryKey: ["books", "search", query],
     queryFn: () => bookApi.searchBooks(api, query).then(res => res.data).then(res=>{return Object.values(res.data)}),

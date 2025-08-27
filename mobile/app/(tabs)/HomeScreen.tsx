@@ -1,12 +1,12 @@
 import BookModal from "@/components/Book";
+import LoadingComponent from "@/components/LoadingComponent";
 import { useBooks } from "@/hooks/useBooks";
 import { Book } from "@/types";
-import { Text, FlatList, ActivityIndicator, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { Text, FlatList, View } from "react-native";
 
 export default function Index() {
   const { data: books, isLoading, error } = useBooks();
-  if (isLoading) return <ActivityIndicator style={{flex:1,justifyContent:"center"}}></ActivityIndicator>;
+  if (isLoading) return <LoadingComponent/>;
   if (error) return <Text>Hata: {error.message}</Text>;
 
   return (

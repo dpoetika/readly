@@ -1,14 +1,15 @@
-import { ActivityIndicator, FlatList, StyleSheet, Text, View } from 'react-native'
+import { FlatList, StyleSheet, Text, View } from 'react-native'
 import React from 'react'
 import { useLocalSearchParams } from 'expo-router';
-import { useCategories, useCategoryById } from '@/hooks/useCategories';
+import { useCategoryById } from '@/hooks/useCategories';
 import { Book } from '@/types';
 import BookModal from '@/components/Book';
+import LoadingComponent from '@/components/LoadingComponent';
 
 const CategoryBooks = () => {
     const { categoryId, categoryTitle } = useLocalSearchParams<{ categoryId: string, categoryTitle: string }>();
     const { data: books, isLoading, error } = useCategoryById(categoryId);
-    if (isLoading) return <ActivityIndicator style={{ flex: 1, justifyContent: "center" }}></ActivityIndicator>;
+    if (isLoading) return <LoadingComponent/>;
     if (error) return <Text>Hata: {error.message}</Text>;
     return (
     <View style={{flex: 1,padding:0,marginTop:45}}>

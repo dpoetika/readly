@@ -1,9 +1,10 @@
-import { StyleSheet, Text, View, TextInput, TouchableOpacity, ScrollView, FlatList } from 'react-native'
+import { StyleSheet, Text, View, FlatList } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import SearchComponent from '@/components/SearchComponent'
 import BookModal from '@/components/Book'
 import { Book } from '@/types'
 import { useSearchBooks } from '@/hooks/useBooks'
+import LoadingComponent from '@/components/LoadingComponent'
 
 const SearchScreen = () => {
   const [searchText, setSearchText] = useState('')
@@ -12,17 +13,15 @@ const SearchScreen = () => {
   const handleSearch = () => {
     
     if (searchText.trim()) {
-      console.log("tıklandı")
       refetch()
     }
   }
   useEffect(() => {
     if (foundBooks) {
-      console.log("çalıştı")
       setBooks(foundBooks);
     }
   }, [foundBooks]);
-
+  
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Search</Text>
@@ -33,8 +32,9 @@ const SearchScreen = () => {
         placeholder="Search Books or Author..."
         buttonText="Ara"
       />
-
+      {(isLoading) ? <LoadingComponent/>:(
       <FlatList
+        
         showsVerticalScrollIndicator={false}
         data={books}
         keyExtractor={(item) => item.id}
@@ -44,6 +44,7 @@ const SearchScreen = () => {
           />
         )}
       />
+      )}
     </View>
   )
 }

@@ -1,8 +1,9 @@
-import { ActivityIndicator, SafeAreaView, StatusBar, StyleSheet, Text, FlatList, NativeScrollEvent, NativeSyntheticEvent } from 'react-native'
+import { SafeAreaView, StatusBar, StyleSheet, Text, FlatList, NativeScrollEvent, NativeSyntheticEvent } from 'react-native'
 import React, { useMemo, useRef, useState } from 'react'
 import { useLocalSearchParams } from 'expo-router';
 import { useBookById } from '@/hooks/useBooks';
 import AsyncStorage from "@react-native-async-storage/async-storage"
+import LoadingComponent from '@/components/LoadingComponent';
 
 
 const FONT_SIZE = 16;
@@ -69,6 +70,7 @@ const BookScreen = () => {
   const HandleScroll = async (event: NativeSyntheticEvent<NativeScrollEvent>) => {
     if (!isScrolled) { return null }
     const currentScrollY:Number = event.nativeEvent.contentOffset.y;
+    
     let recentlyRead = lastSave ? JSON.parse(lastSave) : {};
     
     recentlyRead[bookId] = {
@@ -76,12 +78,13 @@ const BookScreen = () => {
       page: currentScrollY,
       author: bookAuthor,
       title: bookName,
+      img:`https://www.gutenberg.org/cache/epub/${bookId}/pg${bookId}.cover.medium.jpg`,
     };
     await AsyncStorage.setItem("recentlyRead", JSON.stringify(recentlyRead));
   }
   StatusBar.setHidden(true);
 
-  if (isLoading) return <ActivityIndicator style={styles.loader} size="large" />;
+  if (isLoading) return <LoadingComponent/>;
   if (error) return <Text>Hata: {error.message}</Text>;
   if (!data) return <Text>Veri bulunamadı</Text>;
 
@@ -89,13 +92,12 @@ const BookScreen = () => {
     <SafeAreaView style={styles.container}>
       <FlatList
         ref={flatListRef}
-
         style={{ flex: 1, opacity: isScrollingToPosition ? 0.2 : 1 }}
         data={parts}
         scrollEventThrottle={10}
         onMomentumScrollEnd={(event:NativeSyntheticEvent<NativeScrollEvent>) => { HandleScroll(event) }}
 
-        showsVerticalScrollIndicator={true}
+        showsVerticalScrollIndicator={false}
         keyExtractor={(_, index) => index.toString()}
 
         //onLayout={(event)=>loadScrollPosition(event)}

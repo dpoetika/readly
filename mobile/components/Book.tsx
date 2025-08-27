@@ -3,7 +3,7 @@ import React from "react";
 import { useRouter } from "expo-router";
 import { Book } from "@/types";
 
-const BookModal = ({ book }: { book: Book }) => {
+const BookModal = ({ book, longPress }: { book: Book,longPress?:()=>void }) => {
   const router = useRouter();
 
   return (
@@ -17,6 +17,7 @@ const BookModal = ({ book }: { book: Book }) => {
           bookAuthor: book.author
         }
       })}
+      onLongPress={() => longPress ? longPress() : console.log("longPress tanımsız")}
       activeOpacity={0.7}
     >
       <View style={styles.imageContainer}>
