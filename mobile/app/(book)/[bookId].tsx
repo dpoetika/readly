@@ -11,7 +11,7 @@ const LINE_HEIGHT = 24;
 const CHUNK_SIZE = 3000;
 
 const BookScreen = () => {
-  const { bookId,bookName,bookAuthor} = useLocalSearchParams<{ bookId: string,bookName:string,bookAuthor:string}>();
+  const { bookId, bookName, bookAuthor } = useLocalSearchParams<{ bookId: string, bookName: string, bookAuthor: string }>();
   const id = Array.isArray(bookId) ? bookId[0] : bookId;
   const { data, isLoading, error } = useBookById(id!);
   const flatListRef = useRef<FlatList>(null);
@@ -21,14 +21,14 @@ const BookScreen = () => {
   const loadScrollPosition = async (w: number, h: number) => {
     if (isScrolled) { return null }
     const getItem = await AsyncStorage.getItem("recentlyRead");
-    if (getItem===null){
-      setIsScrolled(true) 
+
+    if (getItem === null) {
+      setIsScrolled(true)
       setIsScrollingToPosition(false);
       return
     }
     setLastSave(getItem)
     try {
-
       const currentBook = JSON.parse(getItem)[bookId];
       if (currentBook) {
         const savedScrollY = currentBook.page;
@@ -45,6 +45,9 @@ const BookScreen = () => {
             setIsScrolled(true)
             setIsScrollingToPosition(false);
           }
+        } else {
+          setIsScrolled(true)
+          setIsScrollingToPosition(false);
         }
       } else {
         setIsScrolled(true)
@@ -69,22 +72,22 @@ const BookScreen = () => {
 
   const HandleScroll = async (event: NativeSyntheticEvent<NativeScrollEvent>) => {
     if (!isScrolled) { return null }
-    const currentScrollY:Number = event.nativeEvent.contentOffset.y;
-    
+    const currentScrollY: Number = event.nativeEvent.contentOffset.y;
+
     let recentlyRead = lastSave ? JSON.parse(lastSave) : {};
-    
+
     recentlyRead[bookId] = {
       id: bookId,
       page: currentScrollY,
       author: bookAuthor,
       title: bookName,
-      img:`https://www.gutenberg.org/cache/epub/${bookId}/pg${bookId}.cover.medium.jpg`,
+      img: `https://www.gutenberg.org/cache/epub/${bookId}/pg${bookId}.cover.medium.jpg`,
     };
     await AsyncStorage.setItem("recentlyRead", JSON.stringify(recentlyRead));
   }
   StatusBar.setHidden(true);
 
-  if (isLoading) return <LoadingComponent/>;
+  if (isLoading) return <LoadingComponent />;
   if (error) return <Text>Hata: {error.message}</Text>;
   if (!data) return <Text>Veri bulunamadı</Text>;
 
@@ -95,7 +98,7 @@ const BookScreen = () => {
         style={{ flex: 1, opacity: isScrollingToPosition ? 0.2 : 1 }}
         data={parts}
         scrollEventThrottle={10}
-        onMomentumScrollEnd={(event:NativeSyntheticEvent<NativeScrollEvent>) => { HandleScroll(event) }}
+        onMomentumScrollEnd={(event: NativeSyntheticEvent<NativeScrollEvent>) => { HandleScroll(event) }}
 
         showsVerticalScrollIndicator={false}
         keyExtractor={(_, index) => index.toString()}
@@ -116,6 +119,7 @@ export default BookScreen;
 
 const styles = StyleSheet.create({
   container: {
+    paddingTop:45,
     flex: 1,
     backgroundColor: '#fff',
   },
