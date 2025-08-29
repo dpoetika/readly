@@ -166,7 +166,7 @@ export const useTextToSpeech = (): UseTextToSpeechReturn => {
   // Konuşmayı devam ettirme
   const resumeSpeaking = useCallback(() => {
     try {
-      // Android'de pause/resume sınırlı olabilir; güvenli taraf için yeniden başlat
+      // Android pause/resume may be limited; prefer safe re-speak of current chunk
       if (isBookReading && bookChunks[currentChunkIndex]) {
         setIsPaused(false);
         const currentText = bookChunks[currentChunkIndex];
