@@ -30,7 +30,13 @@ mobile/
 │   ├── (book)/            # Book reading screen
 │   └── (category)/        # Category books screen
 ├── components/             # Reusable UI components
+│   ├── Book.tsx           # Book display component
+│   ├── CategoryCard.tsx   # Category display component
+│   └── ...                # Other UI components
 ├── hooks/                  # Custom React hooks
+│   ├── useBooks.ts        # Book data management
+│   ├── useCategories.ts   # Category data management
+│   └── useTextToSpeech.tsx # Text-to-Speech functionality
 ├── types/                  # TypeScript type definitions
 └── utils/                  # Utility functions
 ```
@@ -54,6 +60,7 @@ mobile/
 - **AsyncStorage** - Local data persistence
 - **Lottie** - Animation support
 - **Ionicons** - Icon library
+- **Expo Speech** - Text-to-Speech functionality
 
 ## 📱 Features
 
@@ -67,6 +74,7 @@ mobile/
    - Full-text book reading
    - Progress tracking and bookmarking
    - Responsive text layout with chunked loading
+   - **Text-to-Speech support** with speed control, and pitch adjustment
 
 3. **Personal Library**
    - Recently read books
@@ -167,6 +175,15 @@ EXPO_PUBLIC_API_URL=https://your-api-domain.com
 - Chunked text loading (3000 characters per chunk)
 - Lazy loading of book content
 - Efficient list rendering with FlatList
+
+### Text-to-Speech (Sesli Kitap) Features
+- **Speed Control**: Adjustable speech rate from 0.1x to 2.0x for comfortable listening
+- **Pitch Control**: Adjustable pitch from 0.5x to 2.0x for voice customization
+- **Playback Controls**: Play, pause, resume, and stop functionality
+- **Sequential Reading**: Automatically reads entire book content in chunks
+- **Progress Tracking**: Saves reading position and resumes from where left off
+- **Collapsible Panel**: Toggle TTS controls on/off for distraction-free reading
+- **Real-time Adjustments**: Change speed, and pitch during active reading
 
 ## 🚀 Deployment
 
