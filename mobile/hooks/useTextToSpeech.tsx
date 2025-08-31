@@ -42,7 +42,7 @@ export const useTextToSpeech = (): UseTextToSpeechReturn => {
   const [selectedVoice, setSelectedVoice] = useState<string | null>(null);
   const [rate, setRate] = useState<number>(0.8);
   const [pitch, setPitch] = useState<number>(1.0);
-  
+
   // Kitap okuma için yeni state'ler
   const [isBookReading, setIsBookReading] = useState<boolean>(false);
   const [currentChunkIndex, setCurrentChunkIndex] = useState<number>(0);
@@ -63,14 +63,14 @@ export const useTextToSpeech = (): UseTextToSpeechReturn => {
     try {
       const availableVoices = await Speech.getAvailableVoicesAsync();
       console.log('Ses sayısı:', availableVoices.length);
-      
+
       setVoices(availableVoices);
-      
+
       // İngilizce sesi bulmaya çalış, yoksa ilk sesi seç
-      const englishVoice = availableVoices.find(voice => 
+      const englishVoice = availableVoices.find(voice =>
         voice.language.includes('en') || voice.language.includes('EN')
       );
-      
+
       if (englishVoice) {
         console.log('İngilizce ses bulundu:', englishVoice);
         setSelectedVoice(englishVoice.identifier);
@@ -78,7 +78,7 @@ export const useTextToSpeech = (): UseTextToSpeechReturn => {
         console.log('İlk ses seçildi:', availableVoices[0]);
         setSelectedVoice(availableVoices[0].identifier);
       }
-      
+
       console.log('Seçili ses ID:', selectedVoice);
     } catch (error) {
       console.error('Sesler yüklenirken hata oluştu:', error);
@@ -92,7 +92,7 @@ export const useTextToSpeech = (): UseTextToSpeechReturn => {
     console.log('Metin ilk 100 karakter:', text.substring(0, 100));
     console.log('Seçenekler:', options);
     console.log('Mevcut selectedVoice:', selectedVoice);
-    
+
     if (text.trim() === '') {
       console.error('Okunacak metin bulunamadı.');
       return;
@@ -101,7 +101,7 @@ export const useTextToSpeech = (): UseTextToSpeechReturn => {
     try {
       // Önce mevcut konuşmayı durdur
       Speech.stop();
-      
+
       // Ses seçimi için öncelik sırası: options.voice > selectedVoice > ilk mevcut ses
       let voiceToUse = options?.voice || selectedVoice;
       if (!voiceToUse && voices.length > 0) {
@@ -145,7 +145,7 @@ export const useTextToSpeech = (): UseTextToSpeechReturn => {
       console.log('Speech.speak çağrılıyor...');
       console.log('Speech options:', speechOptions);
       console.log('Optimized text length:', optimizedText.length);
-      
+
       Speech.speak(optimizedText, speechOptions);
       console.log('Speech.speak çağrıldı');
     } catch (error) {
@@ -170,6 +170,7 @@ export const useTextToSpeech = (): UseTextToSpeechReturn => {
     try {
       // Android pause/resume may be limited; prefer safe re-speak of current chunk
       if (isBookReading && bookChunks[currentChunkIndex]) {
+        Speech.stop();
         setIsPaused(false);
         const currentText = bookChunks[currentChunkIndex];
         const call = readNextChunkRef.current;
@@ -189,25 +190,25 @@ export const useTextToSpeech = (): UseTextToSpeechReturn => {
     console.log('Tam metin uzunluğu:', fullText.length);
     console.log('Chunk boyutu:', chunkSize);
     console.log('Başlangıç index:', startIndex);
-    
+
     try {
       const cleanText = fullText
         .replace(/\n+/g, ' ')
         .replace(/\s+/g, ' ')
         .trim();
-      
+
       const chunks: string[] = [];
       for (let i = 0; i < cleanText.length; i += chunkSize) {
         chunks.push(cleanText.slice(i, i + chunkSize));
       }
-      
+
       console.log('Toplam chunk sayısı:', chunks.length);
       setBookChunks(chunks);
       setTotalChunks(chunks.length);
       const safeStart = Math.max(0, Math.min(startIndex, Math.max(0, chunks.length - 1)));
       setCurrentChunkIndex(safeStart);
       setIsBookReading(true);
-      
+
       if (chunks.length > 0) {
         const call = readNextChunkRef.current;
         if (call) call(chunks[safeStart]);
@@ -221,7 +222,7 @@ export const useTextToSpeech = (): UseTextToSpeechReturn => {
   const readNextChunk = useCallback((text: string) => {
     console.log(`Chunk ${currentChunkIndex + 1}/${totalChunks} okunuyor`);
     console.log('Chunk uzunluğu:', text.length);
-    
+
     const speechOptions = {
       voice: selectedVoice || undefined,
       rate: rate,
@@ -242,7 +243,7 @@ export const useTextToSpeech = (): UseTextToSpeechReturn => {
           return;
         }
         setIsPaused(false);
-        
+
         // Sonraki chunk'a geç
         if (currentChunkIndex < totalChunks - 1) {
           const nextIndex = currentChunkIndex + 1;
@@ -268,7 +269,7 @@ export const useTextToSpeech = (): UseTextToSpeechReturn => {
         setIsSpeaking(false);
       },
     } as const;
-    
+
     Speech.speak(text, speechOptions);
   }, [currentChunkIndex, totalChunks, selectedVoice, rate, pitch, bookChunks]);
 
@@ -294,7 +295,7 @@ export const useTextToSpeech = (): UseTextToSpeechReturn => {
   const changeVoice = useCallback((voiceId: string) => {
     console.log('Ses değiştiriliyor:', voiceId);
     setSelectedVoice(voiceId);
-    
+
     // Eğer şu anda konuşuyorsa, yeni sesle tekrar başlat
     if (isSpeaking) {
       stopSpeaking();
@@ -313,7 +314,7 @@ export const useTextToSpeech = (): UseTextToSpeechReturn => {
       const roundedRate = parseFloat(newRate.toFixed(1));
       console.log('Hız artırılıyor:', rate, '->', roundedRate);
       setRate(roundedRate);
-      
+
       // Eğer şu anda konuşuyorsa, yeni hızla tekrar başlat
       if (isSpeaking) {
         console.log('Yeni hızla konuşma yeniden başlatılıyor');
@@ -329,7 +330,7 @@ export const useTextToSpeech = (): UseTextToSpeechReturn => {
       const roundedRate = parseFloat(newRate.toFixed(1));
       console.log('Hız azaltılıyor:', rate, '->', roundedRate);
       setRate(roundedRate);
-      
+
       // Eğer şu anda konuşuyorsa, yeni hızla tekrar başlat
       if (isSpeaking) {
         console.log('Yeni hızla konuşma yeniden başlatılıyor');
@@ -345,7 +346,7 @@ export const useTextToSpeech = (): UseTextToSpeechReturn => {
       const roundedPitch = parseFloat(newPitch.toFixed(1));
       console.log('Perde artırılıyor:', pitch, '->', roundedPitch);
       setPitch(roundedPitch);
-      
+
       // Eğer şu anda konuşuyorsa, yeni perdeyle tekrar başlat
       if (isSpeaking) {
         console.log('Yeni perdeyle konuşma yeniden başlatılıyor');
@@ -361,7 +362,7 @@ export const useTextToSpeech = (): UseTextToSpeechReturn => {
       const roundedPitch = parseFloat(newPitch.toFixed(1));
       console.log('Perde azaltılıyor:', pitch, '->', roundedPitch);
       setPitch(roundedPitch);
-      
+
       // Eğer şu anda konuşuyorsa, yeni perdeyle tekrar başlat
       if (isSpeaking) {
         console.log('Yeni perdeyle konuşma yeniden başlatılıyor');
@@ -373,15 +374,15 @@ export const useTextToSpeech = (): UseTextToSpeechReturn => {
   // Sonraki chunk'a geç
   const nextChunk = useCallback(() => {
     if (!isBookReading || currentChunkIndex >= totalChunks - 1) return;
-    
+
     console.log('Sonraki chunk\'a geçiliyor:', currentChunkIndex + 1, '->', currentChunkIndex + 2);
-    
+
     // Mevcut konuşmayı durdur
     Speech.stop();
-    
+
     const nextIndex = currentChunkIndex + 1;
     setCurrentChunkIndex(nextIndex);
-    
+
     // Yeni chunk'ı okumaya başla
     if (bookChunks[nextIndex]) {
       setTimeout(() => {
@@ -394,15 +395,15 @@ export const useTextToSpeech = (): UseTextToSpeechReturn => {
   // Önceki chunk'a geç
   const previousChunk = useCallback(() => {
     if (!isBookReading || currentChunkIndex <= 0) return;
-    
+
     console.log('Önceki chunk\'a geçiliyor:', currentChunkIndex + 1, '->', currentChunkIndex);
-    
+
     // Mevcut konuşmayı durdur
     Speech.stop();
-    
+
     const prevIndex = currentChunkIndex - 1;
     setCurrentChunkIndex(prevIndex);
-    
+
     // Yeni chunk'ı okumaya başla
     if (bookChunks[prevIndex]) {
       setTimeout(() => {
@@ -415,14 +416,14 @@ export const useTextToSpeech = (): UseTextToSpeechReturn => {
   // Belirli bir chunk'a git
   const goToChunk = useCallback((index: number) => {
     if (!isBookReading || index < 0 || index >= totalChunks) return;
-    
+
     console.log('Chunk\'a gidiliyor:', currentChunkIndex + 1, '->', index + 1);
-    
+
     // Mevcut konuşmayı durdur
     Speech.stop();
-    
+
     setCurrentChunkIndex(index);
-    
+
     // Yeni chunk'ı okumaya başla
     if (bookChunks[index]) {
       setTimeout(() => {
