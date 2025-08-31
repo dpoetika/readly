@@ -18,6 +18,16 @@ expo-env.d.ts
 *.key
 *.mobileprovision
 
+# Android
+android/
+android-app/
+*.apk
+*.aab
+*.keystore
+android/app/keystore.properties
+.gradle/
+*.apks
+
 # Metro
 .metro-health-check*
 

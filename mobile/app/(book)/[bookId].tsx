@@ -1,14 +1,14 @@
 import { SafeAreaView, StatusBar, StyleSheet, Text, FlatList, NativeScrollEvent, NativeSyntheticEvent, View, TouchableOpacity } from 'react-native'
-import React, { useMemo, useRef, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { useLocalSearchParams, useNavigation } from 'expo-router';
 import { useBookById } from '@/hooks/useBooks';
 import { useTextToSpeech } from '@/hooks/useTextToSpeech';
 import AsyncStorage from "@react-native-async-storage/async-storage"
 import LoadingComponent from '@/components/LoadingComponent';
+import TextToSpeechPanel from '@/components/TextToSpeechPanel';
 import { Ionicons } from '@expo/vector-icons';
 
-const FONT_SIZE = 16;
-const LINE_HEIGHT = 24;
+
 const CHUNK_SIZE = 3000;
 
 const BookScreen = () => {
@@ -20,7 +20,8 @@ const BookScreen = () => {
   const [isScrollingToPosition, setIsScrollingToPosition] = useState(true);
   const [isScrolled, setIsScrolled] = useState(false)
   const [lastSave, setLastSave] = useState("")
-  
+  const [fontSize, setFontSize] = useState(16)
+
   // Text-to-Speech hook'us
   const {
     isSpeaking,
@@ -41,7 +42,11 @@ const BookScreen = () => {
     startBookReading,
     currentChunkIndex,
     totalChunks,
-    isBookReading
+    isBookReading,
+    // Yeni eklenen chunk navigasyon fonksiyonları
+    nextChunk,
+    previousChunk,
+    goToChunk
   } = useTextToSpeech();
 
   const TTS_CHUNK_SIZE = 1000;
@@ -118,11 +123,44 @@ const BookScreen = () => {
     }
     return chunks;
   };
-  
+
   const parts = useMemo(() => {
     if (!data?.data) return [];
     return splitText(data.data, CHUNK_SIZE);
   }, [data?.data]);
+
+  // Markdown formatını parse eden fonksiyon (sadece _text_ formatı)
+  const parseMarkdown = (text: string) => {
+    //const parts = text.split(/(_([^_]+)_)/g);
+    const parts = text.split(/(_[^_]+_)/g);
+    return parts.map((part, index) => {
+      if (part.startsWith('_') && part.endsWith('_')) {
+        const content = part.slice(1, -1);
+        return (
+          <Text key={index} style={[styles.text, styles.italicText,{fontSize:fontSize,lineHeight:fontSize+8}]}>
+            {content}
+          </Text>
+        );
+      } else {
+        return (
+          <Text key={index} style={[styles.text,{fontSize:fontSize,lineHeight:fontSize+8}]}>
+            {part}
+          </Text>
+        );
+      }
+    });
+  };
+
+  const IncreaseFontSize=(increase:number)=>{
+    if (fontSize <=8 && increase=== -1){return null}
+    setFontSize(prev => prev + (increase));
+    console.log("fonksiyon")
+  }
+  //FontSize değişince tekrar yükle
+  useEffect(() => {
+    console.log(fontSize)
+  }, [fontSize]);
+
 
   const HandleScroll = async (event: NativeSyntheticEvent<NativeScrollEvent>) => {
     if (!isScrolled) { return null }
@@ -146,13 +184,13 @@ const BookScreen = () => {
     console.log('data?.data mevcut mu:', !!data?.data);
     console.log('data?.data uzunluğu:', data?.data?.length);
     console.log('data?.data ilk 100 karakter:', data?.data?.substring(0, 100));
-    
+
     if (data?.data) {
       console.log('TTS başlatılıyor...');
       console.log('Seçili ses:', selectedVoice);
       console.log('Hız:', rate);
       console.log('Perde:', pitch);
-      
+
       try {
         // Önce varsa kayıtlı ilerlemeyi oku
         const progress = await loadTtsProgress();
@@ -191,25 +229,11 @@ const BookScreen = () => {
           console.log('Focus ile otomatik TTS devam:', progress);
           startBookReading(data.data, progress.chunkSize, progress.index);
         }
-      } catch (e) {}
+      } catch (e) { }
     });
     return unsubscribe;
   }, [navigation, data?.data, startBookReading]);
 
-  // Ses değiştir
-  const handleVoiceChange = (voiceId: string) => {
-    console.log('handleVoiceChange çağrıldı:', voiceId);
-    changeVoice(voiceId);
-    
-    // Eğer şu anda konuşuyorsa, yeni sesle tekrar başlat
-    if (isSpeaking) {
-      console.log('Ses değişikliği sırasında konuşma yeniden başlatılıyor');
-      stopSpeaking();
-      setTimeout(() => {
-        handleStartReading();
-      }, 200);
-    }
-  };
 
   // Sesli okuma paneli görünürlüğü
   const [ttsVisible, setTtsVisible] = useState<boolean>(true);
@@ -219,12 +243,12 @@ const BookScreen = () => {
       try {
         const raw = await AsyncStorage.getItem('ttsVisible');
         if (raw !== null) setTtsVisible(raw === 'true');
-      } catch {}
+      } catch { }
     })();
   }, []);
 
   React.useEffect(() => {
-    AsyncStorage.setItem('ttsVisible', String(ttsVisible)).catch(() => {});
+    AsyncStorage.setItem('ttsVisible', String(ttsVisible)).catch(() => { });
     if (!ttsVisible && (isSpeaking || isBookReading)) {
       // Panel kapatılırsa aktif okuma varsa durdur
       stopSpeaking();
@@ -241,8 +265,8 @@ const BookScreen = () => {
     <SafeAreaView style={styles.container}>
       {/* TTS Panel Toggle */}
       <View style={{ paddingHorizontal: 16, paddingBottom: 8 }}>
-        <TouchableOpacity 
-          onPress={() => setTtsVisible(v => !v)} 
+        <TouchableOpacity
+          onPress={() => setTtsVisible(v => !v)}
           style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 10 }}
         >
           <Text style={{ fontSize: 16, fontWeight: '600' }}>Sesli Okuma</Text>
@@ -252,104 +276,30 @@ const BookScreen = () => {
 
       {/* TTS Panel (Aç/Kapa) */}
       {ttsVisible && (
-        <View style={styles.ttsContainer}>
-          {/* Ana Kontroller */}
-          <View style={styles.mainControls}>
-            {!isBookReading ? (
-              <>
-                <TouchableOpacity style={[styles.button, styles.playButton]} onPress={handleStartReading}>
-                  <Ionicons name="play" size={24} color="white" />
-                  <Text style={styles.buttonText}>Oku</Text>
-                </TouchableOpacity>
-                {/* Test butonu */}
-                <TouchableOpacity 
-                  style={[styles.button, { backgroundColor: '#007AFF' }]} 
-                  onPress={() => {
-                    console.log('Test TTS çağrıldı');
-                    const testText = "Hello world. This is a test.";
-                    console.log('Test metni:', testText);
-                    console.log('Test için seçili ses:', selectedVoice);
-                    console.log('Test için hız:', rate);
-                    console.log('Test için perde:', pitch);
-                    startSpeaking(testText, {
-                      rate: rate,
-                      pitch: pitch,
-                      language: 'en',
-                      voice: selectedVoice || undefined
-                    });
-                  }}
-                >
-                  <Ionicons name="mic" size={24} color="white" />
-                  <Text style={styles.buttonText}>Test</Text>
-                </TouchableOpacity>
-              </>
-            ) : (
-              <>
-                {isPaused || !isSpeaking ? (
-                  <TouchableOpacity style={[styles.button, styles.playButton]} onPress={resumeSpeaking}>
-                    <Ionicons name="play" size={24} color="white" />
-                    <Text style={styles.buttonText}>Devam</Text>
-                  </TouchableOpacity>
-                ) : (
-                  <TouchableOpacity style={[styles.button, styles.pauseButton]} onPress={pauseSpeaking}>
-                    <Ionicons name="pause" size={24} color="white" />
-                    <Text style={styles.buttonText}>Duraklat</Text>
-                  </TouchableOpacity>
-                )}
-                <TouchableOpacity style={[styles.button, styles.stopButton]} onPress={stopSpeaking}>
-                  <Ionicons name="stop" size={24} color="white" />
-                  <Text style={styles.buttonText}>Durdur</Text>
-                </TouchableOpacity>
-              </>
-            )}
-          </View>
-
-          {/* Kitap Okuma İlerlemesi */}
-          {showTtsProgress && (
-            <View style={styles.progressContainer}>
-              {totalChunks > 0 ? (
-                <Text style={styles.progressText}>
-                  Sayfa {currentChunkIndex + 1} / {totalChunks}
-                </Text>
-              ) : (
-                <Text style={styles.progressText}>Hazırlanıyor...</Text>
-              )}
-              <View style={styles.progressBar}>
-                <View 
-                  style={[
-                    styles.progressFill, 
-                    { width: totalChunks > 0 ? `${((currentChunkIndex + 1) / totalChunks) * 100}%` : '0%' }
-                  ]} 
-                />
-              </View>
-            </View>
-          )}
-
-          {/* Hız ve Perde Kontrolleri */}
-          <View style={styles.speedPitchContainer}>
-            <Text style={styles.sectionTitle}>Hız</Text>
-            <View style={styles.row}>
-              <TouchableOpacity style={styles.smallButton} onPress={decreaseRate}>
-                <Text style={styles.smallButtonText}>-</Text>
-              </TouchableOpacity>
-              <Text style={styles.valueText}>{rate.toFixed(1)}</Text>
-              <TouchableOpacity style={styles.smallButton} onPress={increaseRate}>
-                <Text style={styles.smallButtonText}>+</Text>
-              </TouchableOpacity>
-            </View>
-
-            <Text style={[styles.sectionTitle, { marginTop: 10 }]}>Perde</Text>
-            <View style={styles.row}>
-              <TouchableOpacity style={styles.smallButton} onPress={decreasePitch}>
-                <Text style={styles.smallButtonText}>-</Text>
-              </TouchableOpacity>
-              <Text style={styles.valueText}>{pitch.toFixed(1)}</Text>
-              <TouchableOpacity style={styles.smallButton} onPress={increasePitch}>
-                <Text style={styles.smallButtonText}>+</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
+        <TextToSpeechPanel
+          isSpeaking={isSpeaking}
+          isPaused={isPaused}
+          isBookReading={isBookReading}
+          currentChunkIndex={currentChunkIndex}
+          totalChunks={totalChunks}
+          rate={rate}
+          pitch={pitch}
+          font={fontSize}
+          FontSize={IncreaseFontSize}
+          selectedVoice={selectedVoice}
+          startSpeaking={startSpeaking}
+          pauseSpeaking={pauseSpeaking}
+          resumeSpeaking={resumeSpeaking}
+          stopSpeaking={stopSpeaking}
+          increaseRate={increaseRate}
+          decreaseRate={decreaseRate}
+          increasePitch={increasePitch}
+          decreasePitch={decreasePitch}
+          handleStartReading={handleStartReading}
+          nextChunk={nextChunk}
+          previousChunk={previousChunk}
+          showTtsProgress={showTtsProgress}
+        />
       )}
 
       {/* Kitap İçeriği */}
@@ -363,8 +313,8 @@ const BookScreen = () => {
         keyExtractor={(_, index) => index.toString()}
         onContentSizeChange={(w, h) => loadScrollPosition(w, h)}
         renderItem={({ item }) => (
-          <Text style={styles.text}>
-            {item}
+          <Text style={[styles.text,{fontSize:fontSize,lineHeight:fontSize+8}]}>
+            {parseMarkdown(item)}
           </Text>
         )}
       />
@@ -380,112 +330,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
   },
-  ttsContainer: {
-    backgroundColor: '#f8f9fa',
-    padding: 15,
-    borderBottomWidth: 1,
-    borderBottomColor: '#e9ecef',
-  },
-  ttsHeader: {
-    marginBottom: 15,
-  },
-  ttsTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 5,
-  },
-  bookInfo: {
-    fontSize: 14,
-    color: '#666',
-    fontStyle: 'italic',
-  },
-  mainControls: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 15,
-  },
-  button: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 20,
-    marginHorizontal: 8,
-    minWidth: 100,
-  },
-  playButton: {
-    backgroundColor: '#4cd964',
-  },
-  pauseButton: {
-    backgroundColor: '#ffcc00',
-  },
-  stopButton: {
-    backgroundColor: '#ff3b30',
-  },
-  buttonText: {
-    color: 'white',
-    fontWeight: 'bold',
-    marginLeft: 6,
-    fontSize: 14,
-  },
-  controlRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    marginBottom: 15,
-  },
-  controlGroup: {
-    alignItems: 'center',
-  },
-  controlLabel: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#333',
-    marginBottom: 8,
-  },
-  controlButtons: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  controlButton: {
-    padding: 4,
-  },
-  disabledButton: {
-    opacity: 0.5,
-  },
-  controlValue: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#333',
-    marginHorizontal: 12,
-    minWidth: 40,
-    textAlign: 'center',
-  },
-  voiceContainer: {
-    marginTop: 10,
-  },
-  voiceButton: {
-    backgroundColor: '#fff',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 15,
-    marginRight: 8,
-    borderWidth: 1,
-    borderColor: '#ddd',
-  },
-  selectedVoiceButton: {
-    backgroundColor: '#007AFF',
-    borderColor: '#007AFF',
-  },
-  voiceButtonText: {
-    fontSize: 12,
-    color: '#333',
-  },
-  selectedVoiceButtonText: {
-    color: '#fff',
-  },
   bookContent: {
     flex: 1,
   },
@@ -495,64 +339,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   text: {
-    fontSize: FONT_SIZE,
-    lineHeight: LINE_HEIGHT,
     padding: 10,
   },
-  progressContainer: {
-    marginTop: 10,
-    marginBottom: 15,
-    alignItems: 'center',
-  },
-  progressText: {
-    fontSize: 14,
-    color: '#666',
-    marginBottom: 5,
-  },
-  progressBar: {
-    width: '100%',
-    height: 8,
-    backgroundColor: '#e0e0e0',
-    borderRadius: 4,
-    overflow: 'hidden',
-  },
-  progressFill: {
-    height: '100%',
-    backgroundColor: '#007AFF',
-    borderRadius: 4,
-  },
-  speedPitchContainer: {
-    marginTop: 15,
-    marginBottom: 15,
-  },
-  sectionTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#333',
-    marginBottom: 8,
-  },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-around',
-  },
-  smallButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#e0e0e0',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  smallButtonText: {
-    fontSize: 24,
-    color: '#333',
-  },
-  valueText: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#333',
-    minWidth: 40,
-    textAlign: 'center',
+  italicText: {
+    fontStyle: 'italic',
+    fontWeight:"700",
   },
 });
