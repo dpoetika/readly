@@ -30,6 +30,9 @@ interface UseTextToSpeechReturn {
   currentChunkIndex: number;
   totalChunks: number;
   isBookReading: boolean;
+  nextChunk: () => void;
+  previousChunk: () => void;
+  goToChunk: (index: number) => void;
 }
 
 export const useTextToSpeech = (): UseTextToSpeechReturn => {
@@ -59,7 +62,6 @@ export const useTextToSpeech = (): UseTextToSpeechReturn => {
     console.log('loadVoices çağrıldı');
     try {
       const availableVoices = await Speech.getAvailableVoicesAsync();
-      console.log('Mevcut sesler:', availableVoices);
       console.log('Ses sayısı:', availableVoices.length);
       
       setVoices(availableVoices);
@@ -368,6 +370,68 @@ export const useTextToSpeech = (): UseTextToSpeechReturn => {
     }
   }, [pitch, isSpeaking]);
 
+  // Sonraki chunk'a geç
+  const nextChunk = useCallback(() => {
+    if (!isBookReading || currentChunkIndex >= totalChunks - 1) return;
+    
+    console.log('Sonraki chunk\'a geçiliyor:', currentChunkIndex + 1, '->', currentChunkIndex + 2);
+    
+    // Mevcut konuşmayı durdur
+    Speech.stop();
+    
+    const nextIndex = currentChunkIndex + 1;
+    setCurrentChunkIndex(nextIndex);
+    
+    // Yeni chunk'ı okumaya başla
+    if (bookChunks[nextIndex]) {
+      setTimeout(() => {
+        const call = readNextChunkRef.current;
+        if (call) call(bookChunks[nextIndex]);
+      }, 200);
+    }
+  }, [isBookReading, currentChunkIndex, totalChunks, bookChunks]);
+
+  // Önceki chunk'a geç
+  const previousChunk = useCallback(() => {
+    if (!isBookReading || currentChunkIndex <= 0) return;
+    
+    console.log('Önceki chunk\'a geçiliyor:', currentChunkIndex + 1, '->', currentChunkIndex);
+    
+    // Mevcut konuşmayı durdur
+    Speech.stop();
+    
+    const prevIndex = currentChunkIndex - 1;
+    setCurrentChunkIndex(prevIndex);
+    
+    // Yeni chunk'ı okumaya başla
+    if (bookChunks[prevIndex]) {
+      setTimeout(() => {
+        const call = readNextChunkRef.current;
+        if (call) call(bookChunks[prevIndex]);
+      }, 200);
+    }
+  }, [isBookReading, currentChunkIndex, bookChunks]);
+
+  // Belirli bir chunk'a git
+  const goToChunk = useCallback((index: number) => {
+    if (!isBookReading || index < 0 || index >= totalChunks) return;
+    
+    console.log('Chunk\'a gidiliyor:', currentChunkIndex + 1, '->', index + 1);
+    
+    // Mevcut konuşmayı durdur
+    Speech.stop();
+    
+    setCurrentChunkIndex(index);
+    
+    // Yeni chunk'ı okumaya başla
+    if (bookChunks[index]) {
+      setTimeout(() => {
+        const call = readNextChunkRef.current;
+        if (call) call(bookChunks[index]);
+      }, 200);
+    }
+  }, [isBookReading, currentChunkIndex, totalChunks, bookChunks]);
+
   // İlk yüklemede sesleri yükle
   useEffect(() => {
     console.log('useEffect loadVoices çağrıldı');
@@ -468,6 +532,9 @@ export const useTextToSpeech = (): UseTextToSpeechReturn => {
     currentChunkIndex,
     totalChunks,
     isBookReading,
+    nextChunk,
+    previousChunk,
+    goToChunk,
   };
 };
 

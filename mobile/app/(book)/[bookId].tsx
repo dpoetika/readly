@@ -41,7 +41,11 @@ const BookScreen = () => {
     startBookReading,
     currentChunkIndex,
     totalChunks,
-    isBookReading
+    isBookReading,
+    // Yeni eklenen chunk navigasyon fonksiyonları
+    nextChunk,
+    previousChunk,
+    goToChunk
   } = useTextToSpeech();
 
   const TTS_CHUNK_SIZE = 1000;
@@ -322,6 +326,29 @@ const BookScreen = () => {
                   ]} 
                 />
               </View>
+              
+              {/* Chunk Navigasyon Tuşları */}
+              {isBookReading && totalChunks > 1 && (
+                <View style={styles.navigationContainer}>
+                  <TouchableOpacity 
+                    style={[styles.navButton, currentChunkIndex <= 0 && styles.navButtonDisabled]} 
+                    onPress={previousChunk}
+                    disabled={currentChunkIndex <= 0}
+                  >
+                    <Ionicons name="play-back" size={20} color={currentChunkIndex <= 0 ? "#ccc" : "#333"} />
+                    <Text style={[styles.navButtonText, currentChunkIndex <= 0 && styles.navButtonTextDisabled]}>Önceki</Text>
+                  </TouchableOpacity>
+                  
+                  <TouchableOpacity 
+                    style={[styles.navButton, currentChunkIndex >= totalChunks - 1 && styles.navButtonDisabled]} 
+                    onPress={nextChunk}
+                    disabled={currentChunkIndex >= totalChunks - 1}
+                  >
+                    <Text style={[styles.navButtonText, currentChunkIndex >= totalChunks - 1 && styles.navButtonTextDisabled]}>Sonraki</Text>
+                    <Ionicons name="play-forward" size={20} color={currentChunkIndex >= totalChunks - 1 ? "#ccc" : "#333"} />
+                  </TouchableOpacity>
+                </View>
+              )}
             </View>
           )}
 
@@ -554,5 +581,31 @@ const styles = StyleSheet.create({
     color: '#333',
     minWidth: 40,
     textAlign: 'center',
+  },
+  navigationContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginTop: 10,
+    width: '100%',
+  },
+  navButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 8,
+    paddingHorizontal: 15,
+    borderRadius: 20,
+    backgroundColor: '#e0e0e0',
+  },
+  navButtonDisabled: {
+    opacity: 0.5,
+  },
+  navButtonText: {
+    fontSize: 14,
+    fontWeight: '600',
+    marginLeft: 8,
+    color: '#333',
+  },
+  navButtonTextDisabled: {
+    color: '#ccc',
   },
 });
