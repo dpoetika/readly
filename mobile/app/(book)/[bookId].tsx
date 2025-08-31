@@ -1,5 +1,5 @@
 import { SafeAreaView, StatusBar, StyleSheet, Text, FlatList, NativeScrollEvent, NativeSyntheticEvent, View, TouchableOpacity } from 'react-native'
-import React, { useMemo, useRef, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { useLocalSearchParams, useNavigation } from 'expo-router';
 import { useBookById } from '@/hooks/useBooks';
 import { useTextToSpeech } from '@/hooks/useTextToSpeech';
@@ -8,8 +8,7 @@ import LoadingComponent from '@/components/LoadingComponent';
 import TextToSpeechPanel from '@/components/TextToSpeechPanel';
 import { Ionicons } from '@expo/vector-icons';
 
-const FONT_SIZE = 16;
-const LINE_HEIGHT = 24;
+
 const CHUNK_SIZE = 3000;
 
 const BookScreen = () => {
@@ -21,6 +20,7 @@ const BookScreen = () => {
   const [isScrollingToPosition, setIsScrollingToPosition] = useState(true);
   const [isScrolled, setIsScrolled] = useState(false)
   const [lastSave, setLastSave] = useState("")
+  const [fontSize, setFontSize] = useState(16)
 
   // Text-to-Speech hook'us
   const {
@@ -128,6 +128,39 @@ const BookScreen = () => {
     if (!data?.data) return [];
     return splitText(data.data, CHUNK_SIZE);
   }, [data?.data]);
+
+  // Markdown formatını parse eden fonksiyon (sadece _text_ formatı)
+  const parseMarkdown = (text: string) => {
+    //const parts = text.split(/(_([^_]+)_)/g);
+    const parts = text.split(/(_[^_]+_)/g);
+    return parts.map((part, index) => {
+      if (part.startsWith('_') && part.endsWith('_')) {
+        const content = part.slice(1, -1);
+        return (
+          <Text key={index} style={[styles.text, styles.italicText,{fontSize:fontSize,lineHeight:fontSize+8}]}>
+            {content}
+          </Text>
+        );
+      } else {
+        return (
+          <Text key={index} style={[styles.text,{fontSize:fontSize,lineHeight:fontSize+8}]}>
+            {part}
+          </Text>
+        );
+      }
+    });
+  };
+
+  const IncreaseFontSize=(increase:number)=>{
+    if (fontSize <=8 && increase=== -1){return null}
+    setFontSize(prev => prev + (increase));
+    console.log("fonksiyon")
+  }
+  //FontSize değişince tekrar yükle
+  useEffect(() => {
+    console.log(fontSize)
+  }, [fontSize]);
+
 
   const HandleScroll = async (event: NativeSyntheticEvent<NativeScrollEvent>) => {
     if (!isScrolled) { return null }
@@ -251,6 +284,8 @@ const BookScreen = () => {
           totalChunks={totalChunks}
           rate={rate}
           pitch={pitch}
+          font={fontSize}
+          FontSize={IncreaseFontSize}
           selectedVoice={selectedVoice}
           startSpeaking={startSpeaking}
           pauseSpeaking={pauseSpeaking}
@@ -278,8 +313,8 @@ const BookScreen = () => {
         keyExtractor={(_, index) => index.toString()}
         onContentSizeChange={(w, h) => loadScrollPosition(w, h)}
         renderItem={({ item }) => (
-          <Text style={styles.text}>
-            {item}
+          <Text style={[styles.text,{fontSize:fontSize,lineHeight:fontSize+8}]}>
+            {parseMarkdown(item)}
           </Text>
         )}
       />
@@ -304,8 +339,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   text: {
-    fontSize: FONT_SIZE,
-    lineHeight: LINE_HEIGHT,
     padding: 10,
+  },
+  italicText: {
+    fontStyle: 'italic',
+    fontWeight:"700",
   },
 });

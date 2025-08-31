@@ -222,7 +222,17 @@ export const useTextToSpeech = (): UseTextToSpeechReturn => {
   const readNextChunk = useCallback((text: string) => {
     console.log(`Chunk ${currentChunkIndex + 1}/${totalChunks} okunuyor`);
     console.log('Chunk uzunluğu:', text.length);
-
+    
+    // Markdown formatını temizle
+    const cleanedText = text
+      .replace(/_([^_]+)_/g, '$1') // _text_ -> text
+      .replace(/\*\*([^*]+)\*\*/g, '$1') // **text** -> text
+      .replace(/\*([^*]+)\*/g, '$1') // *text* -> text
+      .replace(/`([^`]+)`/g, '$1') // `text` -> text
+      .replace(/#{1,6}\s+/g, '') // # ## ### -> boş
+      .replace(/\s+/g, ' ') // Çoklu boşlukları tek boşluğa çevir
+      .trim();
+    
     const speechOptions = {
       voice: selectedVoice || undefined,
       rate: rate,
@@ -243,7 +253,7 @@ export const useTextToSpeech = (): UseTextToSpeechReturn => {
           return;
         }
         setIsPaused(false);
-
+        
         // Sonraki chunk'a geç
         if (currentChunkIndex < totalChunks - 1) {
           const nextIndex = currentChunkIndex + 1;
@@ -269,8 +279,8 @@ export const useTextToSpeech = (): UseTextToSpeechReturn => {
         setIsSpeaking(false);
       },
     } as const;
-
-    Speech.speak(text, speechOptions);
+    
+    Speech.speak(cleanedText, speechOptions);
   }, [currentChunkIndex, totalChunks, selectedVoice, rate, pitch, bookChunks]);
 
   // readNextChunk referansını güncel tut

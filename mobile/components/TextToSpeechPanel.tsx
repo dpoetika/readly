@@ -11,9 +11,13 @@ type TextToSpeechPanelProps = {
     totalChunks: number;
     rate: number;
     pitch: number;
+    font:number;
     selectedVoice: string | null;
     
     // Fonksiyonlar
+    FontSize: (increase:number) => void;
+
+
     startSpeaking: (text: string, options?: any) => void;
     pauseSpeaking: () => void;
     resumeSpeaking: () => void;
@@ -40,7 +44,9 @@ const TextToSpeechPanel = ({
     totalChunks,
     rate,
     pitch,
+    font,
     selectedVoice,
+    FontSize,
     startSpeaking,
     pauseSpeaking,
     resumeSpeaking,
@@ -54,6 +60,20 @@ const TextToSpeechPanel = ({
     previousChunk,
     showTtsProgress
 }: TextToSpeechPanelProps) => {
+    
+    // Markdown formatındaki _text_ yapısını temizle
+    const cleanMarkdownText = (text: string): string => {
+        return text
+            .replace(/_([^_]+)_/g, '$1') // _text_ -> text
+            .replace(/\*\*([^*]+)\*\*/g, '$1') // **text** -> text
+            .replace(/\*([^*]+)\*/g, '$1') // *text* -> text
+            .replace(/`([^`]+)`/g, '$1') // `text` -> text
+            .replace(/#{1,6}\s+/g, '') // # ## ### -> boş
+            .replace(/\n+/g, ' ') // Çoklu satır sonlarını tek boşluğa çevir
+            .replace(/\s+/g, ' ') // Çoklu boşlukları tek boşluğa çevir
+            .trim();
+    };
+
     return (
         <View style={styles.ttsContainer}>
             {/* Ana Kontroller */}
@@ -69,9 +89,12 @@ const TextToSpeechPanel = ({
                             style={[styles.button, { backgroundColor: '#007AFF' }]}
                             onPress={() => {
                                 console.log('Test TTS çağrıldı');
-                                const testText = "Hello world. This is a test.";
+                                const testText = "_Hello world_. This is a **test** with `markdown` formatting.";
+                                const cleanedText = cleanMarkdownText(testText);
+                                console.log('Orijinal metin:', testText);
+                                console.log('Temizlenmiş metin:', cleanedText);
 
-                                startSpeaking(testText, {
+                                startSpeaking(cleanedText, {
                                     rate: rate,
                                     pitch: pitch,
                                     language: 'en',
@@ -174,6 +197,17 @@ const TextToSpeechPanel = ({
                     </TouchableOpacity>
                     <Text style={styles.valueText}>{pitch.toFixed(1)}</Text>
                     <TouchableOpacity style={styles.smallButton} onPress={increasePitch}>
+                        <Text style={styles.smallButtonText}>+</Text>
+                    </TouchableOpacity>
+                </View>
+
+                <Text style={[styles.sectionTitle, { marginTop: 10 }]}>Font</Text>
+                <View style={styles.row}>
+                    <TouchableOpacity style={styles.smallButton} onPress={()=>FontSize(-1)}>
+                        <Text style={styles.smallButtonText}>-</Text>
+                    </TouchableOpacity>
+                    <Text style={styles.valueText}>{font.toFixed(1)}</Text>
+                    <TouchableOpacity style={styles.smallButton} onPress={()=>FontSize(1)}>
                         <Text style={styles.smallButtonText}>+</Text>
                     </TouchableOpacity>
                 </View>
