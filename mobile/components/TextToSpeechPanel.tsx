@@ -11,12 +11,8 @@ type TextToSpeechPanelProps = {
     totalChunks: number;
     rate: number;
     pitch: number;
-    font:number;
     selectedVoice: string | null;
     
-    // Fonksiyonlar
-    FontSize: (increase:number) => void;
-
 
     startSpeaking: (text: string, options?: any) => void;
     pauseSpeaking: () => void;
@@ -44,9 +40,7 @@ const TextToSpeechPanel = ({
     totalChunks,
     rate,
     pitch,
-    font,
     selectedVoice,
-    FontSize,
     startSpeaking,
     pauseSpeaking,
     resumeSpeaking,
@@ -201,16 +195,6 @@ const TextToSpeechPanel = ({
                     </TouchableOpacity>
                 </View>
 
-                <Text style={[styles.sectionTitle, { marginTop: 10 }]}>Font</Text>
-                <View style={styles.row}>
-                    <TouchableOpacity style={styles.smallButton} onPress={()=>FontSize(-1)}>
-                        <Text style={styles.smallButtonText}>-</Text>
-                    </TouchableOpacity>
-                    <Text style={styles.valueText}>{font.toFixed(1)}</Text>
-                    <TouchableOpacity style={styles.smallButton} onPress={()=>FontSize(1)}>
-                        <Text style={styles.smallButtonText}>+</Text>
-                    </TouchableOpacity>
-                </View>
             </View>
         </View>
     )
