@@ -7,7 +7,7 @@ export default function App() {
 
         <Tabs screenOptions={{ headerShown: false }}>
             <Tabs.Screen
-                name="HomeScreen"
+                name="index"
                 options={{
                     title: 'Top Rated',
                     tabBarIcon: ({ color, size }) => (
