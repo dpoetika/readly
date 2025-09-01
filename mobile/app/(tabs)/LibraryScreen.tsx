@@ -77,8 +77,9 @@ export default function Index() {
   if (isLoading) return <LoadingComponent />;
 
   return (
-    <View style={{ padding: 0, marginTop: 45, flex: 1 }}>
+    <View style={{ padding: 0, flex: 1 }}>
       <View style={{
+        paddingTop:45,
         flexDirection: "row",
         justifyContent: "space-between",
         alignItems: "center",
@@ -86,7 +87,7 @@ export default function Index() {
         paddingVertical: 12,
         backgroundColor: "#f8f9fa",
         borderBottomWidth: 1,
-        borderBottomColor: "#e0e0e0"
+        borderBottomColor: "#e0e0e0",
       }}>
         <Text style={{ fontSize: 30, fontWeight: "900" }}>My Library</Text>
         <TouchableOpacity onPress={() => router.push("../(settings)/settings")}>
