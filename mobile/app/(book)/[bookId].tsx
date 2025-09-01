@@ -137,29 +137,33 @@ const BookScreen = () => {
       if (part.startsWith('_') && part.endsWith('_')) {
         const content = part.slice(1, -1);
         return (
-          <Text key={index} style={[styles.text, styles.italicText,{fontSize:fontSize,lineHeight:fontSize+8}]}>
+          <Text key={index} style={[styles.text, styles.italicText, { fontSize: fontSize, lineHeight: fontSize + 8 }]}>
             {content}
           </Text>
         );
       } else {
         return (
-          <Text key={index} style={[styles.text,{fontSize:fontSize,lineHeight:fontSize+8}]}>
+          <Text key={index} style={[styles.text, { fontSize: fontSize, lineHeight: fontSize + 8 }]}>
             {part}
           </Text>
         );
       }
     });
   };
-
-  const IncreaseFontSize=(increase:number)=>{
-    if (fontSize <=8 && increase=== -1){return null}
-    setFontSize(prev => prev + (increase));
-    console.log("fonksiyon")
-  }
-  //FontSize değişince tekrar yükle
+ 
+  const loadFontSize = (async () => {
+    console.log("çalıştı")
+    try {
+      const fontSizeStorage = await AsyncStorage.getItem("FontSize")
+      console.log(`FontSize bulundu ${fontSizeStorage}`)
+      setFontSize(Number(fontSizeStorage))
+    }catch (error){
+      console.error(error)
+    }
+  })
   useEffect(() => {
-    console.log(fontSize)
-  }, [fontSize]);
+    loadFontSize()
+  })
 
 
   const HandleScroll = async (event: NativeSyntheticEvent<NativeScrollEvent>) => {
@@ -284,8 +288,6 @@ const BookScreen = () => {
           totalChunks={totalChunks}
           rate={rate}
           pitch={pitch}
-          font={fontSize}
-          FontSize={IncreaseFontSize}
           selectedVoice={selectedVoice}
           startSpeaking={startSpeaking}
           pauseSpeaking={pauseSpeaking}
@@ -313,7 +315,7 @@ const BookScreen = () => {
         keyExtractor={(_, index) => index.toString()}
         onContentSizeChange={(w, h) => loadScrollPosition(w, h)}
         renderItem={({ item }) => (
-          <Text style={[styles.text,{fontSize:fontSize,lineHeight:fontSize+8}]}>
+          <Text style={[styles.text, { fontSize: fontSize, lineHeight: fontSize + 8 }]}>
             {parseMarkdown(item)}
           </Text>
         )}
@@ -343,6 +345,6 @@ const styles = StyleSheet.create({
   },
   italicText: {
     fontStyle: 'italic',
-    fontWeight:"700",
+    fontWeight: "700",
   },
 });
