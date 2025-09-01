@@ -2,16 +2,18 @@ import BookModal from "@/components/Book";
 import { Book } from "@/types";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useEffect, useState } from "react";
-import { Text, FlatList, ActivityIndicator, View, RefreshControl, ScrollView, Alert, Platform} from "react-native";
+import { Text, FlatList, ActivityIndicator, View, RefreshControl, ScrollView, Alert, Platform, TouchableOpacity } from "react-native";
 import EmptyComponent from "@/components/EmptyComponent";
 import LoadingComponent from "@/components/LoadingComponent";
+import { Ionicons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
 
 export default function Index() {
 
   const [recentlyBooks, setRecentlyBooks] = useState<Book[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [refreshing, setRefreshing] = useState(false);
-
+  const router = useRouter()
 
   const onRefresh = async () => {
     setRefreshing(true);
@@ -72,12 +74,25 @@ export default function Index() {
     getAllBooks()
   }, [])
 
-  if (isLoading) return <LoadingComponent/>;
+  if (isLoading) return <LoadingComponent />;
 
   return (
-    <View style={{ padding: 0, marginTop: 45, flex: 1}}>
-      <Text style={{ fontSize: 30, fontWeight: 900, alignSelf: "flex-start" }}>My Library</Text>
-
+    <View style={{ padding: 0, marginTop: 45, flex: 1 }}>
+      <View style={{
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
+        paddingHorizontal: 16,
+        paddingVertical: 12,
+        backgroundColor: "#f8f9fa",
+        borderBottomWidth: 1,
+        borderBottomColor: "#e0e0e0"
+      }}>
+        <Text style={{ fontSize: 30, fontWeight: "900" }}>My Library</Text>
+        <TouchableOpacity onPress={() => router.push("../(settings)/settings")}>
+          <Ionicons name="settings" size={24} color="black" />
+        </TouchableOpacity>
+      </View>
 
       <FlatList
         ListEmptyComponent={EmptyComponent}
@@ -91,7 +106,7 @@ export default function Index() {
             longPress={() => deleteBook(item.id)}
           />
         )}
-      />      
+      />
     </View>
   );
 }
