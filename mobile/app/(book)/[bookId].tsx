@@ -7,6 +7,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage"
 import LoadingComponent from '@/components/LoadingComponent';
 import TextToSpeechPanel from '@/components/TextToSpeechPanel';
 import { Ionicons } from '@expo/vector-icons';
+import useTheme from '@/hooks/useTheme';
 
 
 const CHUNK_SIZE = 3000;
@@ -16,13 +17,13 @@ const BookScreen = () => {
   const navigation = useNavigation();
   const id = Array.isArray(bookId) ? bookId[0] : bookId;
   const { data, isLoading, error } = useBookById(id!);
+  const {colors} = useTheme()
   const flatListRef = useRef<FlatList>(null);
   const [isScrollingToPosition, setIsScrollingToPosition] = useState(true);
   const [isScrolled, setIsScrolled] = useState(false)
   const [lastSave, setLastSave] = useState("")
   const [fontSize, setFontSize] = useState(16)
 
-  // Text-to-Speech hook'us
   const {
     isSpeaking,
     isPaused,
@@ -129,7 +130,6 @@ const BookScreen = () => {
     return splitText(data.data, CHUNK_SIZE);
   }, [data?.data]);
 
-  // Markdown formatını parse eden fonksiyon (sadece _text_ formatı)
   const parseMarkdown = (text: string) => {
     //const parts = text.split(/(_([^_]+)_)/g);
     const parts = text.split(/(_[^_]+_)/g);
@@ -266,14 +266,14 @@ const BookScreen = () => {
   if (!data) return <Text>Veri bulunamadı</Text>;
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container,{backgroundColor:colors.surface}]}>
       {/* TTS Panel Toggle */}
       <View style={{ paddingHorizontal: 16, paddingBottom: 8 }}>
         <TouchableOpacity
           onPress={() => setTtsVisible(v => !v)}
           style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 10 }}
         >
-          <Text style={{ fontSize: 16, fontWeight: '600' }}>Sesli Okuma</Text>
+          <Text style={{ fontSize: 16, fontWeight: '600',color:colors.text}}>Audio Book</Text>
           <Ionicons name={ttsVisible ? 'chevron-up' : 'chevron-down'} size={22} color="#333" />
         </TouchableOpacity>
       </View>
@@ -307,7 +307,7 @@ const BookScreen = () => {
       {/* Kitap İçeriği */}
       <FlatList
         ref={flatListRef}
-        style={[styles.bookContent, { opacity: isScrollingToPosition ? 0.2 : 1 }]}
+        style={[styles.bookContent, { opacity: isScrollingToPosition ? 0.2 : 1}]}
         data={parts}
         scrollEventThrottle={10}
         onMomentumScrollEnd={(event: NativeSyntheticEvent<NativeScrollEvent>) => { HandleScroll(event) }}
@@ -315,7 +315,7 @@ const BookScreen = () => {
         keyExtractor={(_, index) => index.toString()}
         onContentSizeChange={(w, h) => loadScrollPosition(w, h)}
         renderItem={({ item }) => (
-          <Text style={[styles.text, { fontSize: fontSize, lineHeight: fontSize + 8 }]}>
+          <Text style={[styles.text, { fontSize: fontSize, lineHeight: fontSize + 8,color:colors.text}]}>
             {parseMarkdown(item)}
           </Text>
         )}

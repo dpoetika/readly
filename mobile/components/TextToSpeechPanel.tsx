@@ -1,6 +1,7 @@
 import { StyleSheet, Text, View, TouchableOpacity } from 'react-native'
 import React from 'react'
 import { Ionicons } from '@expo/vector-icons';
+import useTheme from '@/hooks/useTheme';
 
 type TextToSpeechPanelProps = {
     // State değerleri
@@ -54,7 +55,7 @@ const TextToSpeechPanel = ({
     previousChunk,
     showTtsProgress
 }: TextToSpeechPanelProps) => {
-    
+    const {colors}= useTheme()
     // Markdown formatındaki _text_ yapısını temizle
     const cleanMarkdownText = (text: string): string => {
         return text
@@ -69,7 +70,7 @@ const TextToSpeechPanel = ({
     };
 
     return (
-        <View style={styles.ttsContainer}>
+        <View style={[styles.ttsContainer,{backgroundColor:colors.bg}]}>
             {/* Ana Kontroller */}
             <View style={styles.mainControls}>
                 {!isBookReading ? (
@@ -173,23 +174,23 @@ const TextToSpeechPanel = ({
 
             {/* Hız ve Perde Kontrolleri */}
             <View style={styles.speedPitchContainer}>
-                <Text style={styles.sectionTitle}>Hız</Text>
+                <Text style={[styles.sectionTitle,{color:colors.text}]}>Hız</Text>
                 <View style={styles.row}>
                     <TouchableOpacity style={styles.smallButton} onPress={decreaseRate}>
                         <Text style={styles.smallButtonText}>-</Text>
                     </TouchableOpacity>
-                    <Text style={styles.valueText}>{rate.toFixed(1)}</Text>
+                    <Text style={[styles.valueText,{color:colors.text}]}>{rate.toFixed(1)}</Text>
                     <TouchableOpacity style={styles.smallButton} onPress={increaseRate}>
                         <Text style={styles.smallButtonText}>+</Text>
                     </TouchableOpacity>
                 </View>
 
-                <Text style={[styles.sectionTitle, { marginTop: 10 }]}>Perde</Text>
+                <Text style={[styles.sectionTitle, { marginTop: 10 ,color:colors.text}]}>Perde</Text>
                 <View style={styles.row}>
                     <TouchableOpacity style={styles.smallButton} onPress={decreasePitch}>
                         <Text style={styles.smallButtonText}>-</Text>
                     </TouchableOpacity>
-                    <Text style={styles.valueText}>{pitch.toFixed(1)}</Text>
+                    <Text style={[styles.valueText,{color:colors.text}]}>{pitch.toFixed(1)}</Text>
                     <TouchableOpacity style={styles.smallButton} onPress={increasePitch}>
                         <Text style={styles.smallButtonText}>+</Text>
                     </TouchableOpacity>
