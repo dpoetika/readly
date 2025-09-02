@@ -3,11 +3,11 @@ import React from 'react'
 import { Category } from '@/types'
 import { useRouter } from 'expo-router'
 
-const CategoryCard = ({ category }: { category: Category }) => {
+const CategoryCard = ({ category,colors }: { category: Category,colors:any}) => {
   const router = useRouter()
   return (
     <TouchableOpacity
-      style={styles.container}
+      style={[styles.container,{backgroundColor:colors.surface}]}
       onPress={() => router.push({
         pathname: '/(category)/[categoryId]',
         params: {
@@ -17,7 +17,7 @@ const CategoryCard = ({ category }: { category: Category }) => {
       })}
     >
       <View style={styles.textContainer}>
-        <Text style={styles.title}>{category.title}</Text>
+        <Text style={[styles.title,{color:colors.text}]}>{category.title}</Text>
       </View>
     </TouchableOpacity>
   )
