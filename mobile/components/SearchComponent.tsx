@@ -9,6 +9,7 @@ interface SearchComponentProps {
   handleSearch: () => void;
   placeholder?: string;
   buttonText?: string;
+  colors:any;
 }
 
 const SearchComponent: React.FC<SearchComponentProps> = ({
@@ -16,7 +17,8 @@ const SearchComponent: React.FC<SearchComponentProps> = ({
     setSearchText,
     handleSearch,
     placeholder = "Search Book or author...",
-    buttonText = "Ara"
+    buttonText = "Ara",
+    colors
 }) => {
 
     const clearSearch = () => {
@@ -24,11 +26,11 @@ const SearchComponent: React.FC<SearchComponentProps> = ({
     }
 
     return (
-        <View style={styles.searchContainer}>
-            <View style={styles.inputContainer}>
-                <Ionicons name="search" size={20} color="#999" style={styles.searchIcon} />
+        <View style={[styles.searchContainer,{backgroundColor:colors.input}]}>
+            <View style={[styles.inputContainer,{backgroundColor:colors.backgrounds.input}]}>
+                <Ionicons name="search" size={20} color="black" style={styles.searchIcon} />
                 <TextInput
-                    style={styles.input}
+                    style={[styles.input,{backgroundColor:colors.input}]}
                     placeholder={placeholder}
                     value={searchText}
                     onChangeText={setSearchText}
@@ -37,7 +39,7 @@ const SearchComponent: React.FC<SearchComponentProps> = ({
                 />
                 {searchText.length > 0 && (
                     <TouchableOpacity onPress={clearSearch} style={styles.clearButton}>
-                        <Ionicons name="close-circle" size={20} color="#999" />
+                        <Ionicons name="close-circle" size={20} color="black" />
                     </TouchableOpacity>
                 )}
             </View>

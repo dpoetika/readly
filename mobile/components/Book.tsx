@@ -3,12 +3,12 @@ import React from "react";
 import { useRouter } from "expo-router";
 import { Book } from "@/types";
 
-const BookModal = ({ book, longPress }: { book: Book,longPress?:()=>void }) => {
+const BookModal = ({ book, longPress,colors }: { book: Book,longPress?:()=>void, colors?:any}) => {
   const router = useRouter();
 
   return (
     <TouchableOpacity
-      style={styles.container}
+      style={[styles.container,{backgroundColor:colors.surface}]}
       onPress={() => router.push({
         pathname: '/(book)/[bookId]',
         params: {
@@ -29,8 +29,8 @@ const BookModal = ({ book, longPress }: { book: Book,longPress?:()=>void }) => {
       </View>
 
       <View style={styles.content}>
-        <Text style={styles.title} numberOfLines={2}>{book.title}</Text>
-        <Text style={styles.author} numberOfLines={1}>{book.author}</Text>
+        <Text style={[styles.title,{color:colors.text}]} numberOfLines={2}>{book.title}</Text>
+        <Text style={[styles.author,{color:colors.text}]} numberOfLines={1}>{book.author}</Text>
       </View>
     </TouchableOpacity>
   )
@@ -41,7 +41,6 @@ export default BookModal;
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
-    backgroundColor: '#FFF',
     borderRadius: 12,
     marginBottom: 16,
     padding: 12,

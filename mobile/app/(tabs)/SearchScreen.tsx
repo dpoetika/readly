@@ -5,8 +5,10 @@ import BookModal from '@/components/Book'
 import { Book } from '@/types'
 import { useSearchBooks } from '@/hooks/useBooks'
 import LoadingComponent from '@/components/LoadingComponent'
+import useTheme from '@/hooks/useTheme'
 
 const SearchScreen = () => {
+  const {colors} = useTheme()
   const [searchText, setSearchText] = useState('')
   const { data: foundBooks, isLoading, error, refetch } = useSearchBooks(searchText);
   const [books, setBooks] = useState<Book[]>([])
@@ -23,14 +25,15 @@ const SearchScreen = () => {
   }, [foundBooks]);
   
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Search</Text>
+    <View style={[styles.container,{backgroundColor:colors.bg}]}>
+      <Text style={[styles.title,{color:colors.text}]}>Search</Text>
       <SearchComponent
         searchText={searchText}
         setSearchText={setSearchText}
         handleSearch={handleSearch}
         placeholder="Search Books or Author..."
         buttonText="Ara"
+        colors = {colors}
       />
       {(isLoading) ? <LoadingComponent/>:(
       <FlatList
@@ -41,6 +44,7 @@ const SearchScreen = () => {
         renderItem={({ item }: { item: Book }) => (
           <BookModal
             book={item}
+            colors={colors}
           />
         )}
       />

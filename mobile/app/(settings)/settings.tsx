@@ -12,10 +12,11 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import useTheme from '@/hooks/useTheme';
 
 export default function SettingsScreen() {
     const router = useRouter();
-    const [isDarkMode, setIsDarkMode] = useState(false);
+    const {colors,isDarkMode,toggleDarkMode} = useTheme()
     const [fontSize, setFontSize] = useState(16)
 
     const getFontSizeStorage = async () => {
@@ -38,12 +39,12 @@ export default function SettingsScreen() {
     }
 
     return (
-        <View style={styles.container}>
-            <View style={styles.header}>
+        <View style={[styles.container,{backgroundColor:colors.bg}]}>
+            <View style={[styles.header,{backgroundColor:colors.bg,borderColor:colors.border}]}>
                 <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-                    <Ionicons name="arrow-back" size={24} color="#333" />
+                    <Ionicons name="arrow-back" size={24} color={colors.text} />
                 </TouchableOpacity>
-                <Text style={styles.headerTitle}>Ayarlar</Text>
+                <Text style={[styles.headerTitle,{color:colors.text}]}>Ayarlar</Text>
                 <View style={styles.placeholder} />
             </View>
 
@@ -51,50 +52,50 @@ export default function SettingsScreen() {
                 <View style={styles.section}>
                     {/* Display Section*/}
                     <Text style={styles.sectionTitle}>Display</Text>
-                    <View style={styles.sectionContent}>
+                    <View style={[styles.sectionContent,{backgroundColor:colors.surface,borderColor:colors.border}]}>
                         {/* Theme */}
-                        <View style={styles.settingItem}>
+                        <View style={[styles.settingItem,{backgroundColor:colors.surface,borderColor:colors.border}]}>
                             <View style={styles.settingLeft}>
                                 <Ionicons name={"moon"} size={22} color="#6366F1" />
-                                <Text style={styles.settingText}>Theme</Text>
+                                <Text style={[styles.settingText,{color:colors.text}]}>Theme</Text>
                             </View>
                             <Switch
                                 value={isDarkMode}
-                                onValueChange={setIsDarkMode}
+                                onValueChange={toggleDarkMode}
                                 trackColor={{ false: '#ccc', true: '#6366F1' }}
                                 thumbColor={isDarkMode ? '#fff' : '#f4f3f4'}
                             />
                         </View>
 
                         {/* Font Settings */}
-                        <View style={styles.settingItem}>
+                        <View style={[styles.settingItem,{backgroundColor:colors.surface,borderColor:colors.border}]}>
                             <View style={styles.settingLeft}>
                                 <Ionicons name={"text"} size={22} color="#6366F1" />
-                                <Text style={styles.settingText}>Font Size</Text>
+                                <Text style={[styles.settingText,{color:colors.text}]}>Font Size</Text>
                             </View>
                             <TouchableOpacity onPress={() => IncreaseFontSize(-1)} style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: '#e0e0e0', justifyContent: 'center', alignItems: 'center' }}>
-                                <Text style={{ fontSize: 24, color: '#333' }}>-</Text>
+                                <Text style={{ fontSize: 24, color:colors.textMuted }}>-</Text>
                             </TouchableOpacity>
-                            <Text>{fontSize}</Text>
+                            <Text style={{color:colors.text}}>{fontSize}</Text>
                             <TouchableOpacity onPress={() => IncreaseFontSize(1)} style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: '#e0e0e0', justifyContent: 'center', alignItems: 'center' }}>
-                                <Text style={{ fontSize: 24, color: '#333' }}>+</Text>
+                                <Text style={{ fontSize: 24, color:colors.textMuted }}>+</Text>
                             </TouchableOpacity>
                         </View>
-                        <Text style={{ fontSize: fontSize, lineHeight: fontSize + 8 ,marginTop:10,marginBottom:10}}>This article shows you how {"\n"}your articles will look.</Text>
+                        <Text style={{ fontSize: fontSize, lineHeight: fontSize + 8 ,marginTop:10,marginBottom:10,color:colors.text}}>This article shows you how {"\n"}your articles will look.</Text>
                     </View>
 
 
                     <Text style={[styles.sectionTitle,{paddingTop:10}]}>Contact</Text>
                     <View style={styles.section}>
-                        <View style={styles.sectionContent}>
+                        <View style={[styles.sectionContent,{backgroundColor:colors.surface,borderColor:colors.border}]}>
                             {/* Support */}
                             <TouchableOpacity
-                                style={styles.settingItem}
+                                style={[styles.settingItem,{backgroundColor:colors.surface,borderColor:colors.border}]}
                                 onPress={() => Linking.openURL('https://github.com/dpoetika/readly')}
                             >
                                 <View style={styles.settingLeft}>
                                     <Ionicons name={"logo-github"} size={22} color="#6366F1" />
-                                    <Text style={styles.settingText}>GitHub</Text>
+                                    <Text style={[styles.settingText,{color:colors.text}]}>GitHub</Text>
                                 </View>
                                 <Ionicons name="chevron-forward" size={20} color="#999" />
                             </TouchableOpacity>
@@ -143,7 +144,7 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     section: {
-        marginTop: 20,
+        paddingTop: 20,
     },
     sectionTitle: {
         fontSize: 14,
@@ -156,7 +157,6 @@ const styles = StyleSheet.create({
         backgroundColor: 'white',
         borderTopWidth: 1,
         borderBottomWidth: 1,
-        borderColor: '#eee',
     },
     settingItem: {
         flexDirection: 'row',
@@ -165,7 +165,6 @@ const styles = StyleSheet.create({
         paddingVertical: 14,
         paddingHorizontal: 16,
         borderBottomWidth: 1,
-        borderBottomColor: '#f0f0f0',
     },
     settingLeft: {
         flexDirection: 'row',

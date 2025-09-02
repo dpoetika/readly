@@ -7,9 +7,10 @@ import EmptyComponent from "@/components/EmptyComponent";
 import LoadingComponent from "@/components/LoadingComponent";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
+import useTheme from "@/hooks/useTheme";
 
 export default function Index() {
-
+  const { colors } = useTheme()
   const [recentlyBooks, setRecentlyBooks] = useState<Book[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [refreshing, setRefreshing] = useState(false);
@@ -77,21 +78,22 @@ export default function Index() {
   if (isLoading) return <LoadingComponent />;
 
   return (
-    <View style={{ padding: 0, flex: 1 }}>
+    <View style={{ padding: 0, flex: 1, backgroundColor: colors.bg }}>
       <View style={{
-        paddingTop:45,
+        paddingTop: 45,
+        marginBottom: 10,
         flexDirection: "row",
         justifyContent: "space-between",
         alignItems: "center",
         paddingHorizontal: 16,
         paddingVertical: 12,
-        backgroundColor: "#f8f9fa",
+        backgroundColor: colors.surface,
         borderBottomWidth: 1,
-        borderBottomColor: "#e0e0e0",
+        borderBottomColor: colors.surface,
       }}>
-        <Text style={{ fontSize: 30, fontWeight: "900" }}>My Library</Text>
+        <Text style={{ fontSize: 30, fontWeight: "900", color: colors.text }}>My Library</Text>
         <TouchableOpacity onPress={() => router.push("../(settings)/settings")}>
-          <Ionicons name="settings" size={24} color="black" />
+          <Ionicons name="settings" size={24} color={colors.text} />
         </TouchableOpacity>
       </View>
 
@@ -105,6 +107,7 @@ export default function Index() {
           <BookModal
             book={item}
             longPress={() => deleteBook(item.id)}
+            colors={colors}
           />
         )}
       />
