@@ -7,6 +7,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage"
 import LoadingComponent from '@/components/LoadingComponent';
 import TextToSpeechPanel from '@/components/TextToSpeechPanel';
 import { Ionicons } from '@expo/vector-icons';
+import useTheme from '@/hooks/useTheme';
 
 
 const CHUNK_SIZE = 3000;
@@ -16,6 +17,7 @@ const BookScreen = () => {
   const navigation = useNavigation();
   const id = Array.isArray(bookId) ? bookId[0] : bookId;
   const { data, isLoading, error } = useBookById(id!);
+  const {colors} = useTheme()
   const flatListRef = useRef<FlatList>(null);
   const [isScrollingToPosition, setIsScrollingToPosition] = useState(true);
   const [isScrolled, setIsScrolled] = useState(false)
@@ -184,33 +186,20 @@ const BookScreen = () => {
 
   // Kitap okumaya başlat
   const handleStartReading = async () => {
-    console.log('handleStartReading çağrıldı');
-    console.log('data?.data mevcut mu:', !!data?.data);
-    console.log('data?.data uzunluğu:', data?.data?.length);
-    console.log('data?.data ilk 100 karakter:', data?.data?.substring(0, 100));
-
     if (data?.data) {
-      console.log('TTS başlatılıyor...');
-      console.log('Seçili ses:', selectedVoice);
-      console.log('Hız:', rate);
-      console.log('Perde:', pitch);
-
       try {
         // Önce varsa kayıtlı ilerlemeyi oku
         const progress = await loadTtsProgress();
         const startIndex = progress?.index ?? 0;
         const chunkSize = progress?.chunkSize ?? TTS_CHUNK_SIZE;
-        console.log('Kayıtlı TTS ilerlemesi:', progress);
 
         // Bütün kitabı sırayla okumaya başla
         startBookReading(data.data, chunkSize, startIndex);
-        console.log('Kitap okuma başlatıldı');
       } catch (error) {
-        console.error('Kitap okuma başlatma hatası:', error);
       }
     } else {
-      console.error('Kitap verisi bulunamadı');
-      console.log('data objesi:', data);
+      console.error('No data');
+      console.log('data:', data);
     }
   };
 
@@ -230,7 +219,6 @@ const BookScreen = () => {
       try {
         const progress = await loadTtsProgress();
         if (progress && data?.data) {
-          console.log('Focus ile otomatik TTS devam:', progress);
           startBookReading(data.data, progress.chunkSize, progress.index);
         }
       } catch (e) { }
@@ -262,19 +250,19 @@ const BookScreen = () => {
   StatusBar.setHidden(true);
 
   if (isLoading) return <LoadingComponent />;
-  if (error) return <Text>Hata: {error.message}</Text>;
-  if (!data) return <Text>Veri bulunamadı</Text>;
+  if (error) return <Text>Error: {error.message}</Text>;
+  if (!data) return <Text>Data not fount</Text>;
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container,{backgroundColor:colors.surface}]}>
       {/* TTS Panel Toggle */}
       <View style={{ paddingHorizontal: 16, paddingBottom: 8 }}>
         <TouchableOpacity
           onPress={() => setTtsVisible(v => !v)}
           style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 10 }}
         >
-          <Text style={{ fontSize: 16, fontWeight: '600' }}>Sesli Okuma</Text>
-          <Ionicons name={ttsVisible ? 'chevron-up' : 'chevron-down'} size={22} color="#333" />
+          <Text style={{ fontSize: 16, fontWeight: '600',color:colors.text}}>Audio Book</Text>
+          <Ionicons name={ttsVisible ? 'chevron-up' : 'chevron-down'} size={22} color={colors.text} />
         </TouchableOpacity>
       </View>
 
@@ -315,7 +303,7 @@ const BookScreen = () => {
         keyExtractor={(_, index) => index.toString()}
         onContentSizeChange={(w, h) => loadScrollPosition(w, h)}
         renderItem={({ item }) => (
-          <Text style={[styles.text, { fontSize: fontSize, lineHeight: fontSize + 8 }]}>
+          <Text style={[styles.text, { fontSize: fontSize, lineHeight: fontSize + 8,color:colors.text}]}>
             {parseMarkdown(item)}
           </Text>
         )}

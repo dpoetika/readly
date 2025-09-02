@@ -1,6 +1,7 @@
 import { StyleSheet, Text, View, TouchableOpacity } from 'react-native'
 import React from 'react'
 import { Ionicons } from '@expo/vector-icons';
+import useTheme from '@/hooks/useTheme';
 
 type TextToSpeechPanelProps = {
     // State değerleri
@@ -54,7 +55,7 @@ const TextToSpeechPanel = ({
     previousChunk,
     showTtsProgress
 }: TextToSpeechPanelProps) => {
-    
+    const {colors} = useTheme()
     // Markdown formatındaki _text_ yapısını temizle
     const cleanMarkdownText = (text: string): string => {
         return text
@@ -69,14 +70,14 @@ const TextToSpeechPanel = ({
     };
 
     return (
-        <View style={styles.ttsContainer}>
+        <View style={[styles.ttsContainer,{backgroundColor:colors.surface}]}>
             {/* Ana Kontroller */}
             <View style={styles.mainControls}>
                 {!isBookReading ? (
                     <>
                         <TouchableOpacity style={[styles.button, styles.playButton]} onPress={handleStartReading}>
                             <Ionicons name="play" size={24} color="white" />
-                            <Text style={styles.buttonText}>Oku</Text>
+                            <Text style={styles.buttonText}>Start</Text>
                         </TouchableOpacity>
                         {/* Test butonu */}
                         <TouchableOpacity
@@ -85,8 +86,6 @@ const TextToSpeechPanel = ({
                                 console.log('Test TTS çağrıldı');
                                 const testText = "_Hello world_. This is a **test** with `markdown` formatting.";
                                 const cleanedText = cleanMarkdownText(testText);
-                                console.log('Orijinal metin:', testText);
-                                console.log('Temizlenmiş metin:', cleanedText);
 
                                 startSpeaking(cleanedText, {
                                     rate: rate,
@@ -105,17 +104,17 @@ const TextToSpeechPanel = ({
                         {isPaused || !isSpeaking ? (
                             <TouchableOpacity style={[styles.button, styles.playButton]} onPress={resumeSpeaking}>
                                 <Ionicons name="play" size={24} color="white" />
-                                <Text style={styles.buttonText}>Devam</Text>
+                                <Text style={styles.buttonText}>Continue</Text>
                             </TouchableOpacity>
                         ) : (
                             <TouchableOpacity style={[styles.button, styles.pauseButton]} onPress={pauseSpeaking}>
                                 <Ionicons name="pause" size={24} color="white" />
-                                <Text style={styles.buttonText}>Duraklat</Text>
+                                <Text style={styles.buttonText}>Pause</Text>
                             </TouchableOpacity>
                         )}
                         <TouchableOpacity style={[styles.button, styles.stopButton]} onPress={stopSpeaking}>
                             <Ionicons name="stop" size={24} color="white" />
-                            <Text style={styles.buttonText}>Durdur</Text>
+                            <Text style={styles.buttonText}>Stop</Text>
                         </TouchableOpacity>
                     </>
                 )}
@@ -129,7 +128,7 @@ const TextToSpeechPanel = ({
                             Sayfa {currentChunkIndex + 1} / {totalChunks}
                         </Text>
                     ) : (
-                        <Text style={styles.progressText}>Hazırlanıyor...</Text>
+                        <Text style={styles.progressText}>Preparing...</Text>
                     )}
                     <View style={styles.progressBar}>
                         <View
@@ -152,7 +151,7 @@ const TextToSpeechPanel = ({
                                 disabled={currentChunkIndex <= 0}
                             >
                                 <Ionicons name="play-back" size={20} color={currentChunkIndex <= 0 ? "#ccc" : "#333"} />
-                                <Text style={[styles.navButtonText, currentChunkIndex <= 0 && styles.navButtonTextDisabled]}>Önceki</Text>
+                                <Text style={[styles.navButtonText, currentChunkIndex <= 0 && styles.navButtonTextDisabled]}>Previous</Text>
                             </TouchableOpacity>
 
                             <TouchableOpacity
@@ -163,7 +162,7 @@ const TextToSpeechPanel = ({
                                 onPress={nextChunk}
                                 disabled={currentChunkIndex >= totalChunks - 1}
                             >
-                                <Text style={[styles.navButtonText, currentChunkIndex >= totalChunks - 1 && styles.navButtonTextDisabled]}>Sonraki</Text>
+                                <Text style={[styles.navButtonText, currentChunkIndex >= totalChunks - 1 && styles.navButtonTextDisabled]}>Next</Text>
                                 <Ionicons name="play-forward" size={20} color={currentChunkIndex >= totalChunks - 1 ? "#ccc" : "#333"} />
                             </TouchableOpacity>
                         </View>
@@ -173,23 +172,23 @@ const TextToSpeechPanel = ({
 
             {/* Hız ve Perde Kontrolleri */}
             <View style={styles.speedPitchContainer}>
-                <Text style={styles.sectionTitle}>Hız</Text>
+                <Text style={[styles.sectionTitle,{color:colors.text}]}>Speed</Text>
                 <View style={styles.row}>
                     <TouchableOpacity style={styles.smallButton} onPress={decreaseRate}>
                         <Text style={styles.smallButtonText}>-</Text>
                     </TouchableOpacity>
-                    <Text style={styles.valueText}>{rate.toFixed(1)}</Text>
+                    <Text style={[styles.valueText,{color:colors.text}]}>{rate.toFixed(1)}</Text>
                     <TouchableOpacity style={styles.smallButton} onPress={increaseRate}>
                         <Text style={styles.smallButtonText}>+</Text>
                     </TouchableOpacity>
                 </View>
 
-                <Text style={[styles.sectionTitle, { marginTop: 10 }]}>Perde</Text>
+                <Text style={[styles.sectionTitle, { marginTop: 10,color:colors.text }]}>Pitch</Text>
                 <View style={styles.row}>
                     <TouchableOpacity style={styles.smallButton} onPress={decreasePitch}>
                         <Text style={styles.smallButtonText}>-</Text>
                     </TouchableOpacity>
-                    <Text style={styles.valueText}>{pitch.toFixed(1)}</Text>
+                    <Text style={[styles.valueText,{color:colors.text}]}>{pitch.toFixed(1)}</Text>
                     <TouchableOpacity style={styles.smallButton} onPress={increasePitch}>
                         <Text style={styles.smallButtonText}>+</Text>
                     </TouchableOpacity>
