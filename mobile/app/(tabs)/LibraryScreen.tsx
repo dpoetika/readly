@@ -2,7 +2,7 @@ import BookModal from "@/components/Book";
 import { Book } from "@/types";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useEffect, useState } from "react";
-import { Text, FlatList, ActivityIndicator, View, RefreshControl, ScrollView, Alert, Platform, TouchableOpacity } from "react-native";
+import { Text, FlatList,View, RefreshControl, Alert, TouchableOpacity } from "react-native";
 import EmptyComponent from "@/components/EmptyComponent";
 import LoadingComponent from "@/components/LoadingComponent";
 import { Ionicons } from "@expo/vector-icons";

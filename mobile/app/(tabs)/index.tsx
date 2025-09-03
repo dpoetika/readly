@@ -11,9 +11,9 @@ export default function Index() {
   if (isLoading) return <LoadingComponent/>;
   if (error) return <Text>Hata: {error.message}</Text>;
 
-
   return (
     <View style={{flex: 1,padding:0,paddingTop:45,backgroundColor:colors.bg}}>
+      <Text style={{ fontSize: 30, fontWeight: "900", color: colors.text }}>Top 100 Book</Text>
       <FlatList
         showsVerticalScrollIndicator={false}
         data={books}
