@@ -83,7 +83,6 @@ const TextToSpeechPanel = ({
                         <TouchableOpacity
                             style={[styles.button, { backgroundColor: '#007AFF' }]}
                             onPress={() => {
-                                console.log('Test TTS çağrıldı');
                                 const testText = "_Hello world_. This is a **test** with `markdown` formatting.";
                                 const cleanedText = cleanMarkdownText(testText);
 

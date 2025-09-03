@@ -58,7 +58,6 @@ const BookScreen = () => {
       const key = `ttsProgress:${id}`;
       const payload = { index, chunkSize: TTS_CHUNK_SIZE, updatedAt: Date.now() };
       await AsyncStorage.setItem(key, JSON.stringify(payload));
-      // console.log('TTS progress saved:', payload);
     } catch (e) {
       console.error('TTS progress save error:', e);
     }
@@ -154,10 +153,8 @@ const BookScreen = () => {
   };
  
   const loadFontSize = (async () => {
-    console.log("çalıştı")
     try {
       const fontSizeStorage = await AsyncStorage.getItem("FontSize")
-      console.log(`FontSize bulundu ${fontSizeStorage}`)
       setFontSize(Number(fontSizeStorage))
     }catch (error){
       console.error(error)
